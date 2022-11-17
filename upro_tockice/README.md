@@ -1,6 +1,6 @@
 # upro tockice
 
-(the instructions for running are in root [README.md](../) of this project)  
+(the instructions for running are in root [README.md](../README.md) of this project)  
 
 This is project specific to my university  
 Where input and expected output is given  
