@@ -2,7 +2,8 @@
 all of my hotkeys
 
 
-To run them, you'll probably need some other programs.
+To run them, you'll probably need some other programs (listed below).  
+Modify them to suit your needs  
 
 # AutoHotKey
 
