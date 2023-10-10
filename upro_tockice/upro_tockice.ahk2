@@ -1,0 +1,23 @@
+﻿#SingleInstance Force
+
+
+
+; Unesite·duljinu·polja:·3↵
+; Unesite·duljinu·polja:·3↵
+; Unesite·duljinu·polja:·3
+
+^+v:: {
+	text := original_text := A_Clipboard
+	text := StrReplace(text, "·", " ")
+	text := StrReplace(text, "`r`n", "\n")
+	text := StrReplace(text, "↵\n" , "\n")
+	text := StrReplace(text, "↵",    "\n")
+	A_Clipboard := text
+	SendInput("^v")
+	Sleep(300)
+	A_Clipboard := original_text
+}
+
+; Unesite duljinu polja: 3\n; Unesite duljinu polja: 3\n; Unesite duljinu polja: 3\n
+
+; Unesite duljinu polja: 3\n; Unesite duljinu polja: 3\n; Unesite duljinu polja: 3

@@ -14,6 +14,9 @@ After running
 `Ctrl+V` for raw paste (nothing modified)  
 `Ctrl+Shift+V` for paste with replacements  
 
+There is script for AHK v1 and AHK v2.  
+I recommend v2, but both work fine.  
+
 example:
 
 when copying

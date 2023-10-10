@@ -20,5 +20,5 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 	; {
 	; 	MsgBox, % Ord(A_LoopField)
 	; }
-	Send, %text%
+	SendInput, %text%
 Return
