@@ -1,0 +1,1 @@
+git clone https://github.com/Descolada/UIA-v2 %~dp0UIAutomation

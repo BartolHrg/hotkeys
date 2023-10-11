@@ -1,0 +1,92 @@
+#Requires AutoHotkey v2.0
+#SingleInstance Force
+
+; ^Esc:: {
+; 	MsgBox("Exiting EzΩManager GUI")
+; 	ExitApp
+; }
+
+#Include "./ReplacerAlgorithms.ahk2"
+#Include "./Manager.ahk2"
+
+#Include "./UIAutomation/Lib/UIA.ahk"
+
+managerCleanup() {
+	Global manager
+	manager.cleanup()
+}
+TITLE := "EzΩManager v" . version
+Class EzΩManagerWindow extends ManagerBase {
+	initialized := False
+	__New(manager) {
+		This.manager := manager
+		This.replacement := NO_REPLACEMENT_TEXT
+		This.focused_element := UIA.GetFocusedElement()
+		This.gui_object := gui_object := Gui(, TITLE,)
+		gui_object.OnEvent("Close", (*) => managerCleanup())
+		This.edit_object := gui_object.AddEdit("r1 w400")
+		This.initialized := True
+		gui_object.Show()
+	}
+	
+	submit() {
+		text := This.edit_object.Value
+		replacement := executeReplacer(text)
+		If (replacement == MATCH_NOT_FOUND) {
+			MsgBox("Match Not Found", TITLE . " Error", "iconx")
+		} Else If (replacement == REPLACEMENT_ERROR) {
+			MsgBox("Replacement Error", TITLE . " Error", "iconx")
+		} Else If (replacement == NO_REPLACEMENT_TEXT) {
+			This.cleanup()
+			Return True
+		} Else If (replacement Is String) {
+			This.replacement := replacement
+			This.cleanup()
+			Return True
+		} Else If (replacement Is Func) {
+			This.replacement := replacement
+			This.cleanup()
+			Return True
+		} Else {
+			MsgBox("Unknown replacement", TITLE . " Error", "iconx")
+		}
+		Return False
+	}
+	cleanup() {
+		This.gui_object.Destroy()
+		This.returnFocus()
+	}
+	
+	returnFocus() {
+		This.focused_element.SetFocus()
+		replacement := This.replacement
+		is_string := replacement Is String
+		is_func := replacement Is Func
+		If ((is_string And StrLen(replacement) > 0) Or is_func) {
+			tmpclp := ClipboardAll()
+			A_Clipboard := replacement
+			Sleep(300)
+			SendEvent("^v")
+			Sleep(300)
+			A_Clipboard := tmpclp
+			tmpclp := ""
+		} Else If (is_func) {
+			replacement()
+		}
+	}
+}
+
+; Sleep(5000)
+; manager := EzΩManagerWindow()
+
+
+#HotIf WinActive(TITLE)
+	Tab:: {
+		Global manager
+		manager.submit()
+	}
+	Esc:: {
+		Global manager
+		manager.destroy()
+	}
+#HotIf

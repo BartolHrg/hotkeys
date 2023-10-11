@@ -1,0 +1,67 @@
+#Requires AutoHotkey v2.0
+
+#Include "./Types.ahk2"
+#Include "./MatchGroup.ahk2"
+#Include "./Replacers.ahk2"
+
+findPotentialMatches(whole_text) { ; -> string[]
+	Return []
+}
+findMatch(whole_text) {
+	Global match_groups
+	For match_group In match_groups {
+		match := match_group.findReplacer(whole_text)
+		If (match != MATCH_NOT_FOUND) {
+			Return match
+		}
+	}
+	Global any_matches
+	For xxx In any_matches {
+		matcher  := xxx[2]
+		replacer := xxx[3]
+		match_result := matcher(whole_text)
+		If (match_result Is MatchResult) {
+			If (match_result.found) {
+				Return [replacer, match_result.data]
+			}
+		} Else { ; If Boolean
+			If (match_result) {
+				Return [replacer, True]
+			}
+		}
+	}
+	Return MATCH_NOT_FOUND
+}
+executeReplacer(whole_text) {
+	replacer_and_match_data := findMatch(whole_text)
+	If (replacer_and_match_data == MATCH_NOT_FOUND) {
+		Return MATCH_NOT_FOUND
+	}
+	replacer := replacer_and_match_data[1]
+	If (replacer Is Func) {
+		match_data := replacer_and_match_data[2]
+		result := replacer(match_data, whole_text)
+	} Else {
+		result := replacer
+	}
+	If (result Is Integer) {
+		If (result) {
+			Return NO_REPLACEMENT_TEXT
+		} Else {
+			Return REPLACEMENT_ERROR
+		}
+	}
+	Return result
+}
+useReplacement(replacement) {
+	If (replacement == MATCH_NOT_FOUND) {
+		throw Error("MATCH_NOT_FOUND")
+	} Else If (replacement == REPLACEMENT_ERROR) {
+		throw Error(REPLACEMENT_ERROR)
+	} Else If (replacement == NO_REPLACEMENT_TEXT) {
+	} Else If (replacement Is String) {
+		MsgBox(replacement)
+	} Else {
+		throw Error("unknown replacement " . Type(replacement))
+	}
+}

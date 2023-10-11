@@ -1,0 +1,84 @@
+#Requires AutoHotkey v2.0
+
+; Replacer := (match_data: Any, whole_text: String) -> TODO: enum | String | Bool
+; Matcher := (whole_text: String) -> MatchResult | Bool
+Class MatchResult {
+	Static MY_NULL := Object()
+	; found: Bool
+	; data: Any
+	__New(found, data := MatchResult.MY_NULL) {
+		This.found := found
+		This.data := data
+	}
+}
+makeReplacer(replacer_origin) {
+	If (replacer_origin Is String or replacer_origin Is Integer) {
+		Return (match, whole_text) => replacer_origin
+	} Else If (replacer_origin Is Func) {
+		Return replacer_origin
+	}
+	throw Error("replacer origin must be String or Boolean or Function")
+}
+MATCH_NOT_FOUND := Object()
+
+class Count {
+	static MY_NULL := Object()
+	__New(start, stop := Count.MY_NULL, step := Count.MY_NULL) {
+		If (stop == Count.MY_NULL) {
+			stop := start
+			start := 1
+		}
+		If (step == Count.MY_NULL) {
+			If (start < stop) {
+				step := 1
+			} Else {
+				step := -1
+			}
+		}
+		This.start := start
+		This.stop := stop
+		This.step := step
+		This.i := start
+		If (step > 0) {
+			This.condition := (this_arg) => this_arg.i <= this_arg.stop
+		} Else {
+			This.condition := (this_arg) => this_arg.i >= this_arg.stop
+		}
+		This.Call := This.__Call
+	}
+	__Enum(number_of_vars) {
+		If (number_of_vars != 1) {
+			throw Error("Count only supports 1 var in the For loop")
+		}
+		Return This
+	}
+	__Call(&i) {
+		If (Not This.condition()) {
+			Return False
+		}
+		i := This.i
+		This.i += This.step
+		Return True
+	}
+	moveForward() {
+		This.i += This.step
+	}
+}
+
+REPLACEMENT_ERROR := Object()
+NO_REPLACEMENT_TEXT := Object()
+
+joinSpread(arrays*) {
+	result := []
+	For arr In arrays {
+		result.Push(arr*)
+	}
+	Return result
+}
+getOnOff(bool) {
+	If (bool) {
+		Return "On"
+	} Else {
+		Return "Off"
+	}
+}

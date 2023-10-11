@@ -1,0 +1,135 @@
+#Requires AutoHotkey v2.0
+
+#Include "./Types.ahk2"
+#Include "./OrderedMap.ahk2"
+
+TEXT_TRANSFORM_INVALID := Object()
+TEXT_TRANSFORM_NULL := Object()
+noTransform(whole_text) => whole_text
+Class MatchGroup {
+	; exact_matches           : Map {String: Replacer | String} ; the name is the match (key)
+	; case_insensitive_matches: Map {String: Replacer | String} ; the name is the match (key) ; "[c] " is prepended to the name
+	; regex_matches           : Map {RegExp: [name: String, Replacer | String]} ; "[r] " is prepended to the name
+	__New(textTransform, exact_matches, case_insensitive_matches, regex_matches) {
+		This.textTransform := textTransform
+		This.exact_matches            := exact_matches
+		This.case_insensitive_matches := This._transformCaseInsensitiveMatches(case_insensitive_matches)
+		This.regex_matches            := regex_matches ; atm, we can't precompile regex (maybe with the use of C/C++ dll)
+		This.exact_matches           .Default := MATCH_NOT_FOUND
+		This.case_insensitive_matches.Default := MATCH_NOT_FOUND
+		This.regex_matches           .Default := MATCH_NOT_FOUND
+	}
+	_transformCaseInsensitiveMatches(case_insensitive_matches) {
+		new_case_insensitive_matches := Map()
+		new_case_insensitive_matches.Capacity := case_insensitive_matches.Capacity
+		For match, replacer In case_insensitive_matches {
+			match := StrLower(match)
+			new_case_insensitive_matches[match] := replacer
+		}
+		Return new_case_insensitive_matches
+	}
+	findReplacer(text) {
+		; String => [replacer, match_data]
+		textTransform := This.textTransform
+		text_and_optional_data := textTransform(text)
+		If (text_and_optional_data Is String) {
+			text := text_and_optional_data
+			text_transform_data := TEXT_TRANSFORM_NULL
+		} Else { ; if tuple
+			text := text_and_optional_data[1]
+			text_transform_data := text_and_optional_data[2]
+		}
+		If (text == TEXT_TRANSFORM_INVALID) {
+			Return MATCH_NOT_FOUND
+		}
+		If ((exact_match := This.exact_matches[text]) != MATCH_NOT_FOUND) {
+			Return [exact_match, [text, text_transform_data]]
+		}
+		lowercase_to_match := StrLower(text)
+		If ((case_insensitive_match := This.case_insensitive_matches[lowercase_to_match]) != MATCH_NOT_FOUND) {
+			Return [case_insensitive_match, [text, text_transform_data]]
+		}
+		For regex, name_and_replacer In This.regex_matches {
+			If (RegExMatch(text, regex, &regex_match)) {
+				replacer := name_and_replacer[2]
+				Return [replacer, [text, regex, regex_match, text_transform_data]]
+			}
+		}
+		Return MATCH_NOT_FOUND
+	}
+}
+firstWordTextTransform(whole_text) {
+	Loop Parse whole_text {
+		If (Not IsSpace(A_LoopField)) {
+			starting_index := A_Index
+			Break
+		}
+	}
+	If (Not IsSet(starting_index)) {
+		Return TEXT_TRANSFORM_INVALID
+	}
+	remaining_count := StrLen(whole_text) - starting_index
+	count := remaining_count + 1
+	Loop remaining_count {
+		index := starting_index + A_Index
+		c := SubStr(whole_text, index, 1)
+		If (IsSpace(c)) {
+			count := A_Index
+			Break
+		}
+	}
+	Return [SubStr(whole_text, starting_index, count), starting_index + count]
+}
+
+createMatchGroups(match_groups*) {
+	result := OrderedMap()
+	For match_group In match_groups {
+		result[match_group.textTransform] := match_group
+	}
+	Return result
+}
+
+helpers := []
+reseters := []
+
+match_groups := createMatchGroups(
+	MatchGroup(noTransform,
+		Map( ; exact
+		),
+		Map( ; case_insensitive
+		),
+		Map( ; regex
+		),
+	),
+	MatchGroup(Trim, 
+		Map( ; exact
+			; "?", helperReplacer, 
+		),
+		Map( ; case_insensitive
+			; "greek", greekModeToggle,
+			; "γρεεκ", greekModeToggle,
+		),
+		Map( ; regex
+		),
+	),
+	MatchGroup(firstWordTextTransform, 
+		Map( ; exact
+		),
+		Map( ; case_insensitive
+			; "subsup", subSupReplacer,
+			; "supsub", subSupReplacer,
+		),
+		Map( ; regex
+		),
+	),
+)
+; [name: String, Matcher, Replacer][] ; "[a] " is prepended to a name
+any_matches := [
+	; ["x", xMatcher, xReplacer],
+]
+
+addMatchGroup(textTransform) {
+	If match_groups[textTransform] == OrderedMap.NO_VALUE {
+		match_groups[textTransform] := MatchGroup(textTransform, Map(), Map(), Map())
+	}
+}

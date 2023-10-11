@@ -1,0 +1,67 @@
+#Requires AutoHotkey v2.0
+
+#Include "./Types.ahk2"
+#Include "./MatchGroup.ahk2"
+
+
+
+; functions
+	xMatcher(whole_text) {
+		index := InStr(whole_text, "x", False)
+		Return MatchResult(index != 0, index)
+	}
+	xReplacer(index, whole_text) {
+		Return SubStr(whole_text, 1, index - 1) . "_XXX_" . SubStr(whole_text, index + 1)
+	}
+;
+mainHelper() {
+	MouseGetPos(&x, &y)
+	Return ["General", [
+		"CapsLock: " getOnOff(GetKeyState("CapsLock", "T")) "`tShift: " getOnOff(GetKeyState("Shift")),
+		"NumLock: "  getOnOff(GetKeyState("NumLock" , "T")) "`tCtrl: "  getOnOff(GetKeyState("Ctrl")),
+		"Mouse: (" x "," y ")`tAlt: " getOnOff(GetKeyState("Alt")),
+	]]
+}
+helperReplacer(match, whole_text) {
+	text := ""
+	For helper In helpers {
+		text .= "=============================`n"
+		help_text := helper()
+		text .= help_text[1] . "`n"
+		For line In help_text[2] {
+			text .= line . "`n"
+		}
+	}
+	MsgBox(text)
+	Return NO_REPLACEMENT_TEXT
+}
+
+
+helpers.Push(mainHelper)
+; reseters.Push(mainReseter)
+match_groups[Trim].exact_matches["?"] := helperReplacer
+
+;
+	; order of priority
+	;     whole match
+	;         exact
+	;         case insensitive
+	;         regex
+	;     first word
+	;         exact
+	;         case insensitive
+	;         regex
+	;     any - in order of appearance
+;
+
+
+#Include "./Replacers/Box.ahk2"
+#Include "./Replacers/ClipBoardManager.ahk2"
+#Include "./Replacers/CyrillicLetterReplacers.ahk2"
+#Include "./Replacers/DoubleLettersReplacers.ahk2"
+#Include "./Replacers/ezΩ.ahk2"
+#Include "./Replacers/GreekLetterReplacers.ahk2"
+#Include "./Replacers/MouseControll.ahk2"
+#Include "./Replacers/PasswordManager.ahk2"
+#Include "./Replacers/SubSuperScriptReplacers.ahk2"
+

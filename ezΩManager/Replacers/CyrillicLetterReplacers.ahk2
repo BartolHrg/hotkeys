@@ -1,0 +1,295 @@
+; #Requires AutoHotkey v2.0
+
+; ; TODO: shift
+; ; TODO: serbian & russian
+
+; #Requires AutoHotkey v2.0
+
+; #Include "../DefaultMap.ahk2"
+; #Include "../Types.ahk2"
+; #Include "../MatchGroup.ahk2"
+
+; ; ^Esc:: ExitApp
+; ; SC029:: cyrillicModeToggle("", "")
+; ; SC029:: MsgBox(GetKeyState("CapsLock", "T") "   " GetKeyState("Shift"))
+
+
+; cyrillicLetterReplacer(lower_upper_letter) {
+; 	replacer(match, whole_text) {
+; 		If (IsLower(SubStr(whole_text, 1, 1))) {
+; 			Return SubStr(lower_upper_letter, 1, 1)
+; 		} Else {
+; 			Return SubStr(lower_upper_letter, 2, 1)
+; 		}
+; 	}
+; 	Return replacer
+; }
+
+; cyrillicParser(match, whole_text) {
+; 	static NO_VALUE := Object()
+; 	static replacements := DefaultMap(NO_VALUE,
+; 		"a", "α",
+; 		"b", "β",
+; 		"c", "ς",
+; 		"d", "δ",
+; 		"e", "ε",
+; 		"f", "ϕ",
+; 		"g", "γ",
+; 		"h", "χ",
+; 		"i", "η",
+; 		"j", "ι",
+; 		"k", "κ",
+; 		"l", "λ",
+; 		"m", "μ",
+; 		"n", "ν",
+; 		"o", "ο",
+; 		"p", "π",
+; 		"q", "q",
+; 		"r", "ρ",
+; 		"s", "σ",
+; 		"t", "τ",
+; 		"u", "u",
+; 		"v", "v",
+; 		"w", "ω",
+; 		"x", "ξ",
+; 		"y", "y",
+; 		"z", "ζ",
+		
+; 		"A", "Α",
+; 		"B", "Β",
+; 		"C", "Σ",
+; 		"D", "Δ",
+; 		"E", "Ε",
+; 		"F", "Φ",
+; 		"G", "Γ",
+; 		"H", "Χ",
+; 		"I", "Η",
+; 		"J", "Ι",
+; 		"K", "Κ",
+; 		"L", "Λ",
+; 		"M", "Μ",
+; 		"N", "Ν",
+; 		"O", "Ο",
+; 		"P", "Π",
+; 		"Q", "Q",
+; 		"R", "Ρ",
+; 		"S", "Σ",
+; 		"T", "Τ",
+; 		"U", "U",
+; 		"V", "V",
+; 		"W", "Ω",
+; 		"X", "Ξ",
+; 		"Y", "Y",
+; 		"Z", "Ζ",
+; 	)
+; 	static diϕθong_replacements := DefaultMap(NO_VALUE,
+; 		"th", "θ",
+; 		"tH", "θ",
+; 		"ps", "ψ",
+; 		"pS", "ψ",
+		
+; 		"Th", "Θ",
+; 		"TH", "Θ",
+; 		"Ps", "Ψ",
+; 		"PS", "Ψ",
+; 	)
+; 	starting_index := match[2] + 1
+; 	result := ""
+; 	last_char := "-"
+; 	iter := Count(starting_index, StrLen(whole_text))
+; 	For index In iter {
+; 		c := SubStr(whole_text, index    , 1)
+; 		d := SubStr(whole_text, index + 1, 1)
+; 		diϕθong := diϕθong_replacements[c . d]
+; 		If (diϕθong != NO_VALUE) {
+; 			result .= diϕθong
+; 			iter.moveForward()
+; 			Continue
+; 		} 
+; 		replacement := replacements[c]
+; 		If (replacement != NO_VALUE) {
+; 			result .= replacement
+; 			Continue
+; 		}
+; 		result .= c
+; 	}
+; 	Return result
+; }
+; match_groups[firstWordTextTransform].case_insensitive_matches["cyrillic"] := cyrillicParser
+
+; cyrillic_letters_replacements := [
+; 	["alpha", "αΑ"],
+; 	["beta", "βΒ"],
+; 	["gamma", "γΓ"],
+; 	["delta", "δΔ"],
+; 	["epsilon", "εΕ"],
+; 	["epsilon1", "εΕ"],
+; 	["epsilon2", "ϵΕ"],
+; 	["zeta", "ζΖ"],
+; 	["eta", "ηΗ"],
+; 	["theta", "θΘ"],
+; 	["theta1", "θΘ"],
+; 	["theta2", "ϑΘ"],
+; 	["iota", "ιΙ"],
+; 	["jota", "ιΙ"],
+; 	["kappa", "κΚ"],
+; 	["lambda", "λΛ"],
+; 	["mu", "μΜ"],
+; 	["mi", "μΜ"],
+; 	["nu", "νΝ"],
+; 	["ni", "νΝ"],
+; 	["ksi", "ξΞ"],
+; 	["omicron", "οΟ"],
+; 	["pi", "πΠ"],
+; 	["pi1", "πΠ"],
+; 	["pi2", "ϖΠ"],
+; 	["rho", "ρΡ"],
+; 	["ro", "ρΡ"],
+; 	["rho1", "ρΡ"],
+; 	["ro1", "ρΡ"],
+; 	["rho2", "ϱΡ"],
+; 	["ro2", "ϱΡ"],
+; 	["sigma", "σΣ"],
+; 	["sigma1", "σΣ"],
+; 	["sigma2", "ςΣ"],
+; 	["tau", "τΤ"],
+; 	["phi", "ϕΦ"],
+; 	["phi1", "ϕΦ"],
+; 	["phi2", "φΦ"],
+; 	["fi", "ϕΦ"],
+; 	["chi", "χΧ"],
+; 	["hi", "χΧ"],
+; 	["psi", "ψΨ"],
+; 	["omega", "ωΩ"],
+; ]
+; For replacement In cyrillic_letters_replacements {
+; 	match := replacement[1]
+; 	cyrillic := replacement[2]
+; 	match_groups[Trim].case_insensitive_matches[match] := cyrillicLetterReplacer(cyrillic)
+; }
+
+; cyrillic_mode := 0
+; cyrillicModeToggle(match, whole_text) {
+; 	Global cyrillic_mode
+; 	cyrillic_mode := Not cyrillic_mode
+; 	Return NO_REPLACEMENT_TEXT
+; }
+; match_groups[Trim].case_insensitive_matches["cyrillic"] := cyrillicModeToggle
+
+; cyrillicHelper() {
+; 	Global cyrillic_mode
+; 	Switch (cyrillic_mode) {
+; 		Case 0: mode := "Off"
+; 		Case 1: mode := "On ⇒ 1st mode"
+; 		Case 2: mode := "On ⇒ 2nd mode"
+; 	}
+; 	Return ["cyrillic", [
+; 		"cyrillic mode: " mode
+; 	]]
+; }
+; helpers.Push(cyrillicHelper)
+
+; cyrillicReset() {
+; 	Global cyrillic_mode := 0
+; 	Global cyrillic_last_char := "-"
+; }
+; reseters.Push(cyrillicReset)
+
+; ; showHelp() {
+; ; 	help := cyrillicHelper()
+; ; 	text := ""
+; ; 	For line In help[2] {
+; ; 		text .= line . "`n"
+; ; 	}
+; ; 	MsgBox(text, help[1])
+; ; }
+; ; ?:: showHelp()
+
+; cyrillic_last_char := "-"
+; cyrillic_last_upper := False
+; cyrillicLetterShortReplacer(lower_upper_letter) {
+; 	Global cyrillic_last_char
+; 	Global cyrillic_last_upper
+; 	If (GetKeyState("CapsLock", "T") ^ GetKeyState("Shift")) {
+; 		cyrillic_last_char := SubStr(lower_upper_letter, 2, 1)
+; 		cyrillic_last_upper := True
+; 	} Else {
+; 		cyrillic_last_char := SubStr(lower_upper_letter, 1, 1)
+; 		cyrillic_last_upper := False
+; 	}
+; 	Return cyrillic_last_char
+; }
+; cyrillicCombination(lower_upper_letter1, lower_upper_letter_match, lower_upper_letter_no_match) {
+; 	Global cyrillic_last_char
+; 	Global cyrillic_last_upper
+; 	If (InStr(lower_upper_letter1, cyrillic_last_char)) {
+; 		input := "{BackSpace}"
+; 		If (cyrillic_last_upper) {
+; 			input .= SubStr(lower_upper_letter_match, 2, 1)
+; 		} Else {
+; 			input .= SubStr(lower_upper_letter_match, 1, 1)
+; 		}
+; 		cyrillic_last_char := "-"
+; 		Return input
+; 	}
+; 	Return cyrillicLetterShortReplacer(lower_upper_letter_no_match)
+; }
+
+
+; #HotIf cyrillic_mode == 1
+; 	\:: Global cyrillic_mode := 2
+
+; 	a:: SendInput(cyrillicLetterShortReplacer("αΑ"))
+; 	b:: SendInput(cyrillicLetterShortReplacer("βΒ"))
+; 	g:: SendInput(cyrillicLetterShortReplacer("γΓ"))
+; 	d:: SendInput(cyrillicLetterShortReplacer("δΔ"))
+; 	e:: SendInput(cyrillicLetterShortReplacer("εΕ"))
+; 	z:: SendInput(cyrillicLetterShortReplacer("ζΖ"))
+; 	i:: SendInput(cyrillicLetterShortReplacer("ηΗ"))
+; 	j:: SendInput(cyrillicLetterShortReplacer("ιΙ"))
+; 	k:: SendInput(cyrillicLetterShortReplacer("κΚ"))
+; 	l:: SendInput(cyrillicLetterShortReplacer("λΛ"))
+; 	m:: SendInput(cyrillicLetterShortReplacer("μΜ"))
+; 	n:: SendInput(cyrillicLetterShortReplacer("νΝ"))
+; 	x:: SendInput(cyrillicLetterShortReplacer("ξΞ"))
+; 	o:: SendInput(cyrillicLetterShortReplacer("οΟ"))
+; 	p:: SendInput(cyrillicLetterShortReplacer("πΠ"))
+; 	r:: SendInput(cyrillicLetterShortReplacer("ρΡ"))
+; 	s:: SendInput(cyrillicCombination("πΠ", "ψΨ", "σΣ"))
+; 	c:: SendInput(cyrillicLetterShortReplacer("ςΣ"))
+; 	t:: SendInput(cyrillicLetterShortReplacer("τΤ"))
+; 	f:: SendInput(cyrillicLetterShortReplacer("ϕΦ"))
+; 	h:: SendInput(cyrillicCombination("τΤ", "θΘ", "χΧ"))
+; 	w:: SendInput(cyrillicLetterShortReplacer("ωΩ"))
+; #HotIf cyrillic_mode == 2
+; 	Esc:: Global cyrillic_mode := 1
+; 	\:: {
+; 		Global cyrillic_mode
+; 		SendInput("\")
+; 		cyrillic_mode := 1
+; 	}
+	
+; 	a:: SendInput(cyrillicLetterShortReplacer("αΑ"))
+; 	b:: SendInput(cyrillicLetterShortReplacer("βΒ"))
+; 	g:: SendInput(cyrillicLetterShortReplacer("γΓ"))
+; 	d:: SendInput(cyrillicLetterShortReplacer("δΔ"))
+; 	e:: SendInput(cyrillicLetterShortReplacer("ϵΕ"))
+; 	z:: SendInput(cyrillicLetterShortReplacer("ζΖ"))
+; 	i:: SendInput(cyrillicLetterShortReplacer("ηΗ"))
+; 	j:: SendInput(cyrillicLetterShortReplacer("ιΙ"))
+; 	k:: SendInput(cyrillicLetterShortReplacer("κΚ"))
+; 	l:: SendInput(cyrillicLetterShortReplacer("λΛ"))
+; 	m:: SendInput(cyrillicLetterShortReplacer("μΜ"))
+; 	n:: SendInput(cyrillicLetterShortReplacer("νΝ"))
+; 	x:: SendInput(cyrillicLetterShortReplacer("ξΞ"))
+; 	o:: SendInput(cyrillicLetterShortReplacer("οΟ"))
+; 	p:: SendInput(cyrillicLetterShortReplacer("ϖΠ"))
+; 	r:: SendInput(cyrillicLetterShortReplacer("ϱΡ"))
+; 	s:: SendInput(cyrillicCombination("ϖΠ", "ψΨ", "σΣ"))
+; 	c:: SendInput(cyrillicLetterShortReplacer("ςΣ"))
+; 	t:: SendInput(cyrillicLetterShortReplacer("τΤ"))
+; 	f:: SendInput(cyrillicLetterShortReplacer("φΦ"))
+; 	h:: SendInput(cyrillicCombination("τΤ", "ϑΘ", "χΧ"))
+; 	w:: SendInput(cyrillicLetterShortReplacer("ωΩ"))
+; #HotIf
+

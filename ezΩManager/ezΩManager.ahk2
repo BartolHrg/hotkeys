@@ -1,0 +1,43 @@
+#Requires AutoHotkey v2.0
+#SingleInstance Force
+
+; ^Esc:: {
+; 	MsgBox("Exiting ezΩManager")
+; 	ExitApp(0)
+; }
+
+#Include "./Manager.ahk2"
+#Include "./Types.ahk2"
+#Include "./GUI.ahk2"
+
+MsgBox("ezΩManager v" . version)
+
+class EzΩManager extends ManagerBase {
+	__New() {
+		Global manager
+		This.previous_manager := manager
+		manager := This
+		This.window := EzΩManagerWindow(This)
+		Global reseters
+		For reseter In reseters {
+			reseter()
+		}
+	}
+	submit() {
+		If (Not This.window.submit()) {
+			Return
+		}
+		This.cleanup()
+	}
+	destroy() {
+		If (Not This.window.destroy()) {
+			Return
+		}
+		This.cleanup()
+	}
+	cleanup() {
+		Global manager := This.previous_manager
+	}
+}
+
+SC029:: EzΩManager()

@@ -1,0 +1,71 @@
+#Requires AutoHotkey v2.0
+
+class _OrderedMapIterator1 {
+	__New(ordered_map) {
+		This.ordered_map := ordered_map
+		This.index := 1
+	}
+	Call(&value) {
+		index := This.index
+		key_value_pairs := This.ordered_map.key_value_pairs
+		If index > key_value_pairs.Length {
+			Return False
+		}
+		key_value := key_value_pairs[index]
+		value := key_value[2]
+		This.index += 1
+		Return True
+	}
+}
+class _OrderedMapIterator2 {
+	__New(ordered_map) {
+		This.ordered_map := ordered_map
+		This.index := 1
+	}
+	Call(&key, &value) {
+		index := This.index
+		key_value_pairs := This.ordered_map.key_value_pairs
+		If index > key_value_pairs.Length {
+			Return False
+		}
+		key_value := key_value_pairs[index]
+		key := key_value[1]
+		value := key_value[2]
+		This.index += 1
+		Return True
+	}
+}
+
+class OrderedMap {
+	static NO_VALUE := Object()
+	__New(key_value_pairs*) {
+		This.key_value_pairs := key_value_pairs
+	}
+	__Item[key] {
+		get {
+			For key_value In This.key_value_pairs {
+				If key == key_value[1] {
+					Return key_value[2]
+				}
+			}
+			Return OrderedMap.NO_VALUES
+		}
+		set {
+			For key_value In This.key_value_pairs {
+				If key == key_value[1] {
+					key_value[2] := value
+					Return 
+				}
+			}
+			This.key_value_pairs.Push([key, value])
+		}
+	}
+	
+	__Enum(number_of_vars) {
+		If number_of_vars == 1 {
+			Return _OrderedMapIterator1(This)
+		} Else {
+			Return _OrderedMapIterator2(This)
+		}
+	}
+}

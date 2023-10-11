@@ -1,0 +1,17 @@
+#Requires AutoHotkey v2.0
+
+class ManagerBase {
+	submit() {
+		This.cleanup()
+	}
+	destroy() {
+		This.cleanup()
+	}
+	cleanup() {
+	}
+}
+
+NO_MANAGER := ManagerBase()
+manager := NO_MANAGER
+
+version := "1.0.0"
