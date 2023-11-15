@@ -1,0 +1,237 @@
+#Requires AutoHotkey v2.0
+#SingleInstance Force
+
+#Requires AutoHotkey v2.0
+
+try {
+	TraySetIcon("./Letter_D_blue_35033.ico")
+} catch Error as e {
+	; meh, icon doesn't exist
+	; you can download some icon from the internet
+}
+
+SetTitleMatchMode(2)
+
+
+#HotIf WinActive("Discord") Or WinActive("WhatsApp")
+
+;#region Enter
+	$Enter:: Send("{ShiftDown}{Enter}{ShiftUp}")
+	$NumpadEnter:: Send("{ShiftDown}{NumpadEnter}{ShiftUp}")
+	
+	$^Enter:: {
+		Send("^{End}")
+		Send("{Enter}")
+	}
+	$^NumpadEnter:: {
+		Send("^{End}")
+		Send("{NumpadEnter}")
+	}
+;#endregion
+
+;#region code
+	+SC8:: {
+		Send("````{Left}")
+	}
+;#endregion
+
+;#region collapse
+	; init() {
+	; 	Send, ^+i
+	; 	Sleep, 4000
+	; 	mySleep()
+	; 	Loop, 18 {
+	; 		Send, {Tab}
+	; 		mySleep()
+	; 	}
+	; 	Send, {Enter}
+	; 	mySleep()
+	; 	Send, {Esc}
+	; 	mySleep()
+	; 	Loop, 14 {
+	; 		Send, +{Tab}
+	; 		mySleep()
+	; 	}
+	; 	Loop, 2 {
+	; 		Send, {Right}
+	; 		; Send, ^]
+	; 		mySleep()
+	; 	}
+	; 	exitInspectElement() 
+	; }
+	
+	; mySleep() {
+	; 	; MODIFY
+	; 	; you can lower this to make it faster
+	; 	; minimally 100 ms
+	; 	; would not recommend to do it 
+	; 	Sleep, 1000 ; ms
+	; }
+	
+	; enterEditor() {
+	; 	Send, ^+i
+	; 	Sleep, 3000
+	; 	mySleep()
+	; 	Loop, 16 {
+	; 		Send, {Tab}
+	; 		mySleep()
+	; 	}
+	; }
+	; exitInspectElement() {
+	; 	; MODIFY
+	; 	; for devtools in separate window
+	; 	Send, !{F4}
+	; 	; for docked devtools
+	; 	; Send, ^+i
+	; }
+	
+	
+	; collapsed := False
+	
+	; collapse(only_unread) {
+	
+
+	; css_base := ""
+	; 	. "li.containerDefault-YUSmu3"
+	; 	. ":not(li.containerDefault-3TQ5YN~li.containerDefault-YUSmu3)"
+	; 	. ":not(.selected-2TbFuo)"
+	
+	; css_filter := ">:not(.modeUnread-3Cxepe):not(.typeThread-2Aqh6X)"
+	; css_body := "
+	; (
+	;  * {
+	;     height: 0px;
+	; }
+	; )"
+	;     ; background: red; 
+	; css := css_base css_body
+	; css_filtered := css_base css_filter css_body
+	; 	; global css, css_filtered
+	; 	; MsgBox, % css
+	; 	; Return
+	; 	tmpclp := ClipboardAll
+	; 	If (only_unread) {
+	; 		Clipboard := css_filtered
+	; 	} Else {
+	; 		Clipboard := css
+	; 	}
+	; 	Sleep, 200
+	; 	enterEditor()
+	; 	Send, ^a
+	; 	Sleep, 100
+	; 	mySleep()
+	; 	Send, ^v
+	; 	mySleep()
+	; 	Sleep, 200
+	; 	exitInspectElement()
+	; 	Clipboard := tmpclp
+	; 	tmpclp = ""
+	; 	collapsed := True
+	; }
+	
+	; expand() {
+	; 	enterEditor()
+	; 	; Send, {Right}
+	; 	; Sleep, 100
+	; 	Send, ^a
+	; 	Sleep, 100
+	; 	mySleep()
+	; 	Send, {BackSpace}
+	; 	Sleep, 200
+	; 	mySleep()
+	; 	; Send, ^s
+	; 	; mySleep()
+	; 	exitInspectElement()
+	; 	collapsed := False
+	; }
+	
+	; toggleCollapse(only_unread) {
+	; 	If (collapsed) {
+	; 		expand()
+	; 	} Else {
+	; 		collapse(only_unread)
+	; 	}
+	; }
+	
+	; #IfWinActive, Discord, 
+	
+	; ; MODIFY
+	; ; you change these to any keys (or combination, see https://www.autohotkey.com/docs/Hotkeys.htm)
+	; F2::init()
+	
+	; F3::collapse(True)
+	; F4::collapse(False)
+	; F5::expand()
+	; F6::
+	; 	tmpclp := ClipboardAll
+	; 	Clipboard := css_filtered
+	; 	Sleep, 200
+	; 	Send, ^v
+	; 	Sleep, 200
+	; 	Clipboard := tmpclp
+	; 	tmpclp = ""
+	; Return
+
+;#endregion
+
+^Esc:: ExitApp
+
+css_selector := "li.containerDefault__3187b:not(selected__3b4cb):has(> div:not(.modeUnread_f74c03):not(.typeThread__2f91c))"
+css_body := "{ display: none; }"
+css := css_selector ",`n" css_selector " *`n`t" css_body "`n`n"
+delay := 200
+#HotIf WinActive("Discord")
+	openSources() {
+		myhotkey := A_ThisHotkey
+		SendInput("^+i")
+		Sleep(delay)
+		MsgBox("Enter the <Sources> tab and click " myhotkey " again")
+	}
+	F3:: openSources()
+	F4:: openSources()
+#HotIf WinActive("Developer Tools - https://discord.com/")
+	collapseExpandBody(f) {
+		If (MsgBox("Did you enter the <Sources> tab?", , 0x4) != "Yes") {
+			Return
+		}
+		f()
+		Send("!{F4}")
+	}
+	collapse() {
+		tmpclp := A_Clipboard
+		A_Clipboard := css
+		Send("^p")
+		Sleep(delay)
+		Send("shared.css")
+		Sleep(delay)
+		Send("{Enter}")
+		Sleep(delay)
+		Send("^{Home}")
+		Sleep(delay)
+		Send("^v")
+		Sleep(delay * 3)
+		A_Clipboard := tmpclp
+	}
+	expand() {
+		tmpclp := A_Clipboard
+		Send("^p")
+		Sleep(delay)
+		Send("shared.css")
+		Sleep(delay)
+		Send("{Enter}")
+		Sleep(delay)
+		Send("^{Home}")
+		Sleep(delay)
+		Send("^a")
+		Sleep(delay)
+		Send("^c")
+		Sleep(delay)
+		A_Clipboard := StrReplace(A_Clipboard, css)
+		Sleep(delay)
+		Send("^v")
+		Sleep(delay * 3)
+		A_Clipboard := tmpclp
+	}
+	F3:: collapseExpandBody(collapse)
+	F4:: collapseExpandBody(expand)
+#HotIf
