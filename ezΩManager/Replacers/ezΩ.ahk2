@@ -215,6 +215,8 @@ ezΩ_case_sensitive_replacements := joinSpread(
 )
 ezΩ_case_insensitive_replacements := joinSpread(
 	[
+		["ez" , "ezΩ"],
+		["ezm", "ezΩManager"],
 		["kika", "‬"],
 		["r", "Ⓡ"],
 		["c", "©"],
