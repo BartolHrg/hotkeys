@@ -1,6 +1,13 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 
+try {
+	TraySetIcon("./omega_bold_x.png")
+} catch Error as e {
+	; meh, icon doesn't exist
+	; you can download some icon from the internet
+}
+
 ; ^Esc:: {
 ; 	MsgBox("Exiting ezΩManager")
 ; 	ExitApp(0)

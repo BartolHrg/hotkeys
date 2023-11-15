@@ -82,3 +82,11 @@ getOnOff(bool) {
 		Return "Off"
 	}
 }
+
+StrRepeat(str, count) {
+	output := ""
+	Loop count {
+		output .= str
+	}
+	return output
+}

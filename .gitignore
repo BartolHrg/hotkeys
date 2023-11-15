@@ -1,1 +1,7 @@
 ezΩManager/UIAutomation/**
+temp/
+CustomLayout/*
+!CustomLayout/*.klc
+Youtube/
+*.ico
+*.png

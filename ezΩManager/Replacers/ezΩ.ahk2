@@ -1,3 +1,271 @@
 #Requires AutoHotkey v2.0
 
-; COMMING SOON
+#Include "../DefaultMap.ahk2"
+#Include "../Types.ahk2"
+#Include "../MatchGroup.ahk2"
+
+ezΩDoubleReplacer(lower, upper) {
+	Static double_length_p_1 := StrLen("double") + 1
+	replacer(match, whole_text) {
+		trimmed := match[1]
+		If (IsUpper(SubStr(trimmed, 1, 1)) Or IsUpper(SubStr(trimmed, double_length_p_1, 1))) {
+			Return upper
+		} Else {
+			Return lower
+		}
+	}
+	Return replacer
+}
+
+ezΩBracketReplacer(opening, closing) {
+	back_keys := StrRepeat("{Left}", StrLen(closing))
+	bracketInserter() {
+		SendText(opening . closing)
+		Sleep(200)
+		Send(back_keys)
+	}
+	replacer(match, whole_text) {
+		Return bracketInserter
+	}
+	Return replacer
+}
+
+; ezΩ
+ezΩ_card_suites := [
+	["herc"    , "♥"],
+	["karo"    , "♦"],
+	["pik"     , "♠"],
+	["tref"    , "♣"],
+	["hearts"  , "♥"],
+	["diamonds", "♦"],
+	["spades"  , "♠"],
+	["clubs"   , "♣"],
+]
+ezΩ_arrows := [
+	["<=>", "⇔"],
+	["=>", "⇒"],
+	["<=", "⇐"],
+	
+	["<->", "↔"],
+	["->", "→"],
+	["<-", "←"],
+]
+ezΩ_punctuation := [
+	["...", "…"],
+	["dagger", "†"],
+]
+ezΩ_O := [
+	["/o", "ø"],
+	["o/", "ø"],
+	["/O", "Ø"],
+	["O/", "Ø"],
+]
+ezΩ_diacritics := [
+	["ae", "æ"],
+	["Ae", "Æ"],
+	["AE", "Æ"],
+	
+	["oe", "œ"],
+	["Oe", "Œ"],
+	["OE", "Œ"],
+	
+	["nj", "ǌ"],
+	["Nj", "ǋ"],
+	["NJ", "Ǌ"],
+	
+	["lj", "ǉ"],
+	["Lj", "ǈ"],
+	["LJ", "Ǉ"],
+	
+	["dž", "ǆ"],
+	["Dž", "ǅ"],
+	["DŽ", "Ǆ"],
+	
+	["dz", "ǳ"],
+	["Dz", "ǲ"],
+	["DZ", "Ǳ"],
+]
+ezΩ_double_replacements := [
+	["doublepi"   , ezΩDoubleReplacer("ℼ", "ℿ")],
+	["doublegamma", ezΩDoubleReplacer("ℽ", "ℾ")],
+	["doublesigma", "⅀"],
+	
+	["doublea", ezΩDoubleReplacer("𝕒", "𝔸")],
+	["doubleb", ezΩDoubleReplacer("𝕓", "𝔹")],
+	["doublec", ezΩDoubleReplacer("𝕔", "ℂ")],
+	["doubled", ezΩDoubleReplacer("𝕕", "𝔻")],
+	["doublee", ezΩDoubleReplacer("𝕖", "𝔼")],
+	["doublef", ezΩDoubleReplacer("𝕗", "𝔽")],
+	["doubleg", ezΩDoubleReplacer("𝕘", "𝔾")],
+	["doubleh", ezΩDoubleReplacer("𝕙", "ℍ")],
+	["doublei", ezΩDoubleReplacer("𝕚", "𝕀")],
+	["doublej", ezΩDoubleReplacer("𝕛", "𝕁")],
+	["doublek", ezΩDoubleReplacer("𝕜", "𝕂")],
+	["doublel", ezΩDoubleReplacer("𝕝", "𝕃")],
+	["doublem", ezΩDoubleReplacer("𝕞", "𝕄")],
+	["doublen", ezΩDoubleReplacer("𝕟", "ℕ")],
+	["doubleo", ezΩDoubleReplacer("𝕠", "𝕆")],
+	["doublep", ezΩDoubleReplacer("𝕡", "ℙ")],
+	["doubleq", ezΩDoubleReplacer("𝕢", "ℚ")],
+	["doubler", ezΩDoubleReplacer("𝕣", "ℝ")],
+	["doubles", ezΩDoubleReplacer("𝕤", "𝕊")],
+	["doublet", ezΩDoubleReplacer("𝕥", "𝕋")],
+	["doubleu", ezΩDoubleReplacer("𝕦", "𝕌")],
+	["doublev", ezΩDoubleReplacer("𝕧", "𝕍")],
+	["doublew", ezΩDoubleReplacer("𝕨", "𝕎")],
+	["doublex", ezΩDoubleReplacer("𝕩", "𝕏")],
+	["doubley", ezΩDoubleReplacer("𝕪", "𝕐")],
+	["doublez", ezΩDoubleReplacer("𝕫", "ℤ")],
+	
+	["double0", "𝟘"],
+	["double1", "𝟙"],
+	["double2", "𝟚"],
+	["double3", "𝟛"],
+	["double4", "𝟜"],
+	["double5", "𝟝"],
+	["double6", "𝟞"],
+	["double7", "𝟟"],
+	["double8", "𝟠"],
+	["double9", "𝟡"],
+]
+ezΩ_hebrew := [
+	["aleph", "ℵ"],
+	["bet"  , "ℶ"],
+	["gimel", "ℷ"],
+	["dalet", "ℸ"],
+]
+ezΩ_math := [
+	;#region compare
+		["eq", "≡"],
+		["equiv", "≡"],
+		["equivalent", "≡"],
+		["ne", "≠"],
+		
+		["le", "≤"],
+		["ge", "≥"],
+	;#endregion
+	;#region logic
+		["and"      , "∧"],
+		["or"       , "∨"],
+		["not"      , "¬"],
+		
+		["forall"   , "∀"],
+		["all"      , "∀"],
+		["notexists", "∄"],
+		["nexists"  , "∄"],
+		["exists"   , "∃"],
+		["any"      , "∃"],
+		["nany"     , "∃"],
+	;#endregion
+	;#region operators
+		["+-", "±"],
+		["-+", "∓"],
+		["cdot", "·"],
+		["*", "·"],
+		["sqrt", "√"],
+		["cbrt", "∛"],
+		["qvrt", "∜"],
+	;#endregion
+	;#region set
+		["notin", "∉"],
+		["nin"  , "∉"],
+		["in"   , "∈"],
+		["cap"         , "∩"],
+		["intersect"   , "∩"],
+		["intersection", "∩"],
+		["cup"         , "∪"],
+		["union"       , "∪"],
+		["emptyset", "⊘"],
+	;#endregion
+	;#region braces
+		["ceil"  , ezΩBracketReplacer("⌈", "⌉")],
+		["wide"  , ezΩBracketReplacer("⌈", "⌋")],
+		["floor" , ezΩBracketReplacer("⌊", "⌋")],
+		["trunc" , ezΩBracketReplacer("⌈", "⌋")],
+		["braket", ezΩBracketReplacer("⟨", "⟩")],
+		["ceil(" , "⌈"],
+		["ceil)" , "⌉"],
+		["wide(" , "⌊"],
+		["wide)" , "⌉"],
+		["floor(", "⌊"],
+		["floor)", "⌋"],
+		["trunc(", "⌈"],
+		["trunc)", "⌋"],
+		["bra", "⟨"],
+		["ket", "⟩"],
+	;#endregion
+	["infinity", "∞"],
+	["inf", "∞"],
+	["i", "𝕚"],
+	["j", "𝕛"],
+
+	["angle", "∠"],
+	["int", "∫"],
+	["pardif", "∂"],
+	["sum", "Σ"],
+	
+	["fax", "℻"],
+	["qed", "∎"],
+	; ℳℱ ℭ ℻ 
+]
+
+ezΩ_case_sensitive_replacements := joinSpread(
+	ezΩ_O,
+	ezΩ_diacritics,
+)
+ezΩ_case_insensitive_replacements := joinSpread(
+	[
+		["kika", "‬"],
+		["r", "Ⓡ"],
+		["c", "©"],
+		["tm", "™"],
+	],
+	ezΩ_card_suites,
+	ezΩ_arrows,
+	ezΩ_punctuation,
+	ezΩ_double_replacements,
+	ezΩ_hebrew,
+	ezΩ_math,
+)
+For replacement In ezΩ_case_insensitive_replacements {
+	match := replacement[1]
+	replacement := replacement[2]
+	match_groups[Trim].case_insensitive_matches[match] := replacement
+}
+For replacement In ezΩ_case_sensitive_replacements {
+	match := replacement[1]
+	replacement := replacement[2]
+	match_groups[Trim].exact_matches[match] := replacement
+}
+
+#Hotstring EndChars `t
+#Hotstring O?
+
+
+; arrows
+	:O:<=>::⇔
+	:O:=>::⇒
+	:O:<=::⇐
+	
+	:O:<->::↔
+	:O:->::→
+	:O:<-::←
+; end
+
+; punctuation
+	::...::…
+; end
+
+; letters
+	<^>!r:: SendText("Ⓡ")
+	<^>!c:: SendText("©")
+; end
+
+; math & logic
+	; operators
+		:O:+-::±
+		:O:-+::∓
+	; end
+; end
+	
+;

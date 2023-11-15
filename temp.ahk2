@@ -1,0 +1,19 @@
+#SingleInstance Force
+
++Esc:: ExitApp
+
+; SetTitleMatchMode(2)
+
+; ?:: {
+; 	MsgBox "The active window is '" WinGetTitle("A") "'."
+; }
+
+Ctrl:: {
+	; Send("{WheelDown}")
+	; Sleep(10*1000)
+	; MouseGetPos(&x, &y, &win, &ctrl)
+	; MouseClick("Left", A_ScreenWidth / 2, A_ScreenHeight / 2, , 0)
+	; Sleep(100)
+	; MouseMove(x, y)
+	MsgBox("x")
+}

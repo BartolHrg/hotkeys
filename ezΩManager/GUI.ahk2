@@ -62,14 +62,16 @@ Class EzΩManagerWindow extends ManagerBase {
 		replacement := This.replacement
 		is_string := replacement Is String
 		is_func := replacement Is Func
-		If ((is_string And StrLen(replacement) > 0) Or is_func) {
-			tmpclp := ClipboardAll()
-			A_Clipboard := replacement
-			Sleep(300)
-			SendEvent("^v")
-			Sleep(300)
-			A_Clipboard := tmpclp
-			tmpclp := ""
+		If (is_string) {
+			If (StrLen(replacement) > 0) {
+				tmpclp := ClipboardAll()
+				A_Clipboard := replacement
+				Sleep(300)
+				SendEvent("^v")
+				Sleep(300)
+				A_Clipboard := tmpclp
+				tmpclp := ""
+			}
 		} Else If (is_func) {
 			replacement()
 		}
