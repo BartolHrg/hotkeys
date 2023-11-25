@@ -1,0 +1,245 @@
+#Requires AutoHotkey v2.0
+
+#SingleInstance Force
+
+icon_path := "./cursors_big.ico"
+try {
+	TraySetIcon(icon_path)
+} catch Error as e {
+	TrayTip(
+		"Couldn't set icon for MouseControl`n"
+		"if you want, you can create file <" A_ScriptDir "/" icon_path ">"
+	, "MouseControl", 0x12)
+}
+
+CoordMode("Mouse", "Screen")
+
+mouse_initial_speed := 5
+mouse_mode := False
+mouse_speed := mouse_initial_speed
+left_is_pressed := False
+right_is_pressed := False
+middle_is_pressed := False
+
+!SC029:: {
+	Global mouse_mode
+	Global left_is_pressed
+	Global right_is_pressed
+	Global middle_is_pressed
+	mouse_mode := Not mouse_mode
+	If (mouse_mode) {
+		SoundBeep(550, 200)
+	} Else {
+		If (left_is_pressed) {
+			left_is_pressed := False
+			MouseClick("Left", , , , , "U", )
+		}
+		If (right_is_pressed) {
+			right_is_pressed := False
+			MouseClick("Right", , , , , "U", )
+		}
+		If (middle_is_pressed) {
+			middle_is_pressed := False
+			MouseClick("Middle", , , , , "U", )
+		}
+		SoundBeep(440, 200)
+	}
+}
+
+mouseMoveStep() {
+	If Not mouse_mode {
+		Return
+	}
+	horizontal := (GetKeyState("Right", "P") - GetKeyState("Left", "P")) * mouse_speed + (GetKeyState("d", "P") - GetKeyState("a", "P"))
+	vertical   := (GetKeyState("Down", "P" ) - GetKeyState("Up", "P"  )) * mouse_speed + (GetKeyState("s", "P") - GetKeyState("w", "P"))
+	; FileAppend(" " horizontal " " vertical "`n", "./deletmetemp.txt")
+	If (horizontal Or vertical) {
+		MouseMove(horizontal, vertical, , "R")
+	}
+}
+nothing() {
+}
+
+#HotIf mouse_mode
+	?:: {
+		Global mouse_speed
+		MouseGetPos(&x, &y)
+		TrayTip(
+			"inc: " mouse_speed "`n"
+			"pos: (" x ", " y ")"
+		, "MouseControl", 0x11)
+	}
+
+	Up::   nothing()
+	Down:: nothing()
+	Left:: nothing()
+	Right::nothing()
+	
+	w::nothing()
+	s::nothing()
+	a::nothing()
+	d::nothing()
+	
+	NumpadAdd:: {
+		Global mouse_speed
+		mouse_speed += 1
+	}
+	NumpadSub:: {
+		Global mouse_speed
+		mouse_speed -= 1
+	}
+	NumpadMult:: {
+		Global mouse_speed
+		mouse_speed *= 2
+	}
+	NumpadDiv:: {
+		Global mouse_speed
+		mouse_speed /= 2
+	}
+	
+	SCB:: {
+		Global mouse_speed
+		mouse_speed := mouse_initial_speed
+	}
+	SC2:: {
+		Global mouse_speed
+		mouse_speed := 1
+	}
+	
+	SC3:: {
+		Global mouse_speed
+		mouse_speed += 2
+	}
+	!SC3:: {
+		Global mouse_speed
+		mouse_speed -= 2
+	}
+	SC4:: {
+		Global mouse_speed
+		mouse_speed += 3
+	}
+	!SC4:: {
+		Global mouse_speed
+		mouse_speed -= 3
+	}
+	SC5:: {
+		Global mouse_speed
+		mouse_speed += 4
+	}
+	!SC5:: {
+		Global mouse_speed
+		mouse_speed -= 4
+	}
+	SC6:: {
+		Global mouse_speed
+		mouse_speed += 5
+	}
+	!SC6:: {
+		Global mouse_speed
+		mouse_speed -= 5
+	}
+	SC7:: {
+		Global mouse_speed
+		mouse_speed += 6
+	}
+	!SC7:: {
+		Global mouse_speed
+		mouse_speed -= 6
+	}
+	SC8:: {
+		Global mouse_speed
+		mouse_speed += 7
+	}
+	!SC8:: {
+		Global mouse_speed
+		mouse_speed -= 7
+	}
+	SC9:: {
+		Global mouse_speed
+		mouse_speed += 8
+	}
+	!SC9:: {
+		Global mouse_speed
+		mouse_speed -= 8
+	}
+	SCA:: {
+		Global mouse_speed
+		mouse_speed += 9
+	}
+	!SCA:: {
+		Global mouse_speed
+		mouse_speed -= 9
+	}
+	
+	Enter:: MouseClick("Left")
+	NumpadEnter:: MouseClick("Right")
+	
+	RCtrl:: {
+		Global right_is_pressed
+		If (Not right_is_pressed) {
+			right_is_pressed := True
+			MouseClick("Right", , , , , "D", )
+		}
+	}
+	LCtrl:: {
+		Global left_is_pressed
+		If (Not left_is_pressed) {
+			left_is_pressed := True
+			MouseClick("Left" , , , , , "D", )
+		}
+	}
+	RShift:: {
+		Global right_is_pressed
+		If (right_is_pressed) {
+			right_is_pressed := False
+			MouseClick("Right", , , , , "U", )
+		}
+	}
+	LShift:: {
+		Global left_is_pressed
+		If (left_is_pressed) {
+			left_is_pressed := False
+			MouseClick("Left" , , , , , "U", )
+		}
+	}
+	
+	Numpad8:: MouseClick("WheelUp")
+	Numpad2:: MouseClick("WheelDown")
+	Numpad4:: MouseClick("WheelLeft")
+	Numpad6:: MouseClick("WheelRight")
+	Numpad5:: MouseClick("Middle")
+	Numpad1:: {
+		Global middle_is_pressed
+		If (Not middle_is_pressed) {
+			middle_is_pressed := True
+			MouseClick("Middle", , , , , "D", )
+		}
+	}
+	Numpad3:: {
+		Global middle_is_pressed
+		If (Not middle_is_pressed) {
+			middle_is_pressed := True
+			MouseClick("Middle", , , , , "D", )
+		}
+	}
+	Numpad7:: {
+		Global middle_is_pressed
+		If (middle_is_pressed) {
+			middle_is_pressed := False
+			MouseClick("Middle", , , , , "U", )
+		}
+	}
+	Numpad9:: {
+		Global middle_is_pressed
+		If (middle_is_pressed) {
+			middle_is_pressed := False
+			MouseClick("Middle", , , , , "U", )
+		}
+	}
+	
+#HotIf
+
+Loop {
+	mouseMoveStep()
+	Sleep(100)
+}
