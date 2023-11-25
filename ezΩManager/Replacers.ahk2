@@ -61,7 +61,6 @@ match_groups[Trim].exact_matches["?"] := helperReplacer
 #Include "./Replacers/DoubleLettersReplacers.ahk2"
 #Include "./Replacers/ezΩ.ahk2"
 #Include "./Replacers/GreekLetterReplacers.ahk2"
-#Include "./Replacers/MouseControll.ahk2"
 #Include "./Replacers/PasswordManager.ahk2"
 #Include "./Replacers/SubSuperScriptReplacers.ahk2"
 

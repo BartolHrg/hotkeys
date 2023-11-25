@@ -1,11 +1,14 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 
+icon_path := "./omega_bold_x.png"
 try {
-	TraySetIcon("./omega_bold_x.png")
+	TraySetIcon(icon_path)
 } catch Error as e {
-	; meh, icon doesn't exist
-	; you can download some icon from the internet
+	TrayTip(
+		"Couldn't set icon for ezΩManager`n"
+		"if you want, you can create file <" A_ScriptDir "/" icon_path ">"
+	, "ezΩManager", 0x12)
 }
 
 ; ^Esc:: {
@@ -17,7 +20,7 @@ try {
 #Include "./Types.ahk2"
 #Include "./GUI.ahk2"
 
-MsgBox("ezΩManager v" . version)
+; MsgBox("ezΩManager v" . version)
 
 class EzΩManager extends ManagerBase {
 	__New() {

@@ -55,6 +55,7 @@ Class EzΩManagerWindow extends ManagerBase {
 	cleanup() {
 		This.gui_object.Destroy()
 		This.returnFocus()
+		Super.cleanup()
 	}
 	
 	returnFocus() {

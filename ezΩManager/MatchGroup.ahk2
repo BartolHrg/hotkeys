@@ -80,6 +80,11 @@ firstWordTextTransform(whole_text) {
 	}
 	Return [SubStr(whole_text, starting_index, count), starting_index + count]
 }
+firstWordTextTransformGetArgs(match_data, whole_text, max_count := -1) {
+	command    := match_data[1]
+	char_after := match_data[2]
+	Return StrSplit(Trim(SubStr(whole_text, char_after + 1)), " `t`n", , max_count)
+}
 
 createMatchGroups(match_groups*) {
 	result := OrderedMap()
