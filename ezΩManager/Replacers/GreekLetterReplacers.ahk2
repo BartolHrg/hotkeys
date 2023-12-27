@@ -208,7 +208,18 @@ greekCombination(lower1, upper1, lower_match, upper_match, lower_no_match, upper
 	Return greekLetterShortReplacer(lower_no_match, upper_no_match)
 }
 
-
+greek_possible_1st_of_pair := "πΠτΤϖΠτΤ"
+greek_input_hook := InputHook("V B")
+greek_input_hook.BackspaceIsUndo := False
+greekResetLastChar(greek_input_hook, c) {
+	Global greek_last_char
+	Global greek_possible_1st_of_pair
+	If (Not InStr(greek_possible_1st_of_pair, c)) {
+	greek_last_char := "-"
+	}
+}
+greek_input_hook.OnChar := greekResetLastChar
+greek_input_hook.Start()
 #HotIf greek_mode == 1
 	\:: Global greek_mode := 2
 
