@@ -23,4 +23,4 @@ ManagerBase.NO_MANAGER.next := ManagerBase.NO_MANAGER
 
 manager := ManagerBase.NO_MANAGER
 
-version := "1.1.0"
+version := "1.3.0"
