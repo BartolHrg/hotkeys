@@ -11,10 +11,10 @@ try {
 	, "ezΩManager", 0x12)
 }
 
-; ^Esc:: {
-; 	MsgBox("Exiting ezΩManager")
-; 	ExitApp(0)
-; }
+^Esc:: {
+	MsgBox("Exiting ezΩManager")
+	ExitApp(0)
+}
 
 #Include "./Manager.ahk2"
 #Include "./Types.ahk2"
@@ -25,13 +25,11 @@ try {
 class EzΩManager extends ManagerBase {
 	__New() {
 		Global manager
-		This.previous_manager := manager
+		manager.next := This
+		This.prev := manager
+		This.next := ManagerBase.NO_MANAGER
 		manager := This
 		This.window := EzΩManagerWindow(This)
-		Global reseters
-		For reseter In reseters {
-			reseter()
-		}
 	}
 	submit() {
 		If (Not This.window.submit()) {
@@ -46,7 +44,20 @@ class EzΩManager extends ManagerBase {
 		This.cleanup()
 	}
 	cleanup() {
-		Global manager := This.previous_manager
+		This.loseFocus()
+		Super.cleanup()
+	}
+	focus() {
+		Global manager := This
+		For component In components {
+			component.suspend()
+		}
+	}
+	loseFocus() {
+		Global manager := ManagerBase.NO_MANAGER
+		For component In components {
+			component.restore()
+		}
 	}
 }
 

@@ -11,7 +11,7 @@
 
 #Include "./UIAutomation/Lib/UIA.ahk"
 
-managerCleanup() {
+managerCleanup(*) {
 	Global manager
 	manager.cleanup()
 }
@@ -19,12 +19,18 @@ TITLE := "EzΩManager v" . version
 Class EzΩManagerWindow extends ManagerBase {
 	initialized := False
 	__New(manager) {
+		This.prev := ManagerBase.NO_MANAGER
+		This.next := ManagerBase.NO_MANAGER
 		This.manager := manager
 		This.replacement := NO_REPLACEMENT_TEXT
 		This.focused_element := UIA.GetFocusedElement()
 		This.gui_object := gui_object := Gui(, TITLE,)
-		gui_object.OnEvent("Close", (*) => managerCleanup())
+		gui_object.OnEvent("Escape", (*) => This.manager.Destroy())
+		gui_object.OnEvent("Close", (*) => This.manager.cleanup())
 		This.edit_object := gui_object.AddEdit("r1 w400")
+		This.edit_object.OnEvent("Focus", (*) => This.manager.focus())
+		This.edit_object.OnEvent("LoseFocus", (*) => This.manager.loseFocus())
+		This.manager.focus()
 		This.initialized := True
 		gui_object.Show()
 	}
@@ -51,6 +57,10 @@ Class EzΩManagerWindow extends ManagerBase {
 			MsgBox("Unknown replacement", TITLE . " Error", "iconx")
 		}
 		Return False
+	}
+	destroy() {
+		Super.destroy()
+		Return True
 	}
 	cleanup() {
 		This.gui_object.Destroy()
@@ -88,8 +98,8 @@ Class EzΩManagerWindow extends ManagerBase {
 		Global manager
 		manager.submit()
 	}
-	Esc:: {
-		Global manager
-		manager.destroy()
-	}
+	; Esc:: {
+	; 	Global manager
+	; 	manager.destroy()
+	; }
 #HotIf

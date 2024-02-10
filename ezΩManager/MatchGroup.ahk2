@@ -138,3 +138,5 @@ addMatchGroup(textTransform) {
 		match_groups[textTransform] := MatchGroup(textTransform, Map(), Map(), Map())
 	}
 }
+
+components := []

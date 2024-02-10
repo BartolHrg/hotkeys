@@ -1,19 +1,129 @@
 #SingleInstance Force
 
-+Esc:: ExitApp
+; +Esc:: ExitApp
+
+
+; a := ClipboardAll()
+
+; FileOpen("C:/temp/a.html", "w").RawWrite(a.Ptr, a.Size)
+
+; ExitApp
+
+f(w) {
+	MsgBox(w.mytit)
+}
+tit := "abcd"
+w1 := Gui(, tit " 1")
+w1.mytit := 1
+w1.OnEvent("Focus", f)
+w2 := Gui(, tit " 2")
+w2.mytit := 2
+w2.OnEvent("Focus", f)
+
+; class AAA {
+; 	static ap() {
+; 		MsgBox("hello")
+; 		MsgBox(This == AAA)
+; 		Return 45
+; 	}
+; 	static klmn := This.ap()
+; }
+
+; ; f(A) {
+; ; 	A.ap()
+; ; }
+
+; ; f(AAA)
+
+; ExitApp
 
 ; SetTitleMatchMode(2)
 
 ; ?:: {
-; 	MsgBox "The active window is '" WinGetTitle("A") "'."
+; 	; MsgBox "The active window is '" WinGetTitle("A") "'."
+; 	TrayTip(
+; 		"Left: " GetKeyState("Left") "`n"
+; 		"Right: " GetKeyState("Right") "`n"
+; 		"Up: " GetKeyState("Up") "`n"
+; 		"Down: " GetKeyState("Down") "`n"
+; 	, , 0x10)
 ; }
 
-Ctrl:: {
-	; Send("{WheelDown}")
-	; Sleep(10*1000)
-	; MouseGetPos(&x, &y, &win, &ctrl)
-	; MouseClick("Left", A_ScreenWidth / 2, A_ScreenHeight / 2, , 0)
-	; Sleep(100)
-	; MouseMove(x, y)
-	MsgBox("x")
-}
+; selectRow(args*) {
+; 	list_view.Modify(1, , "<" "name" ">")
+	
+; 	; row := list_view.GetNext()
+; 	; If (row == 0) {
+; 	; 	MsgBox("Nothing selected")
+; 	; 	Return
+; 	; }
+; 	; name := list_view.GetText(row, 1)
+; 	; MsgBox(name)
+; }
+; deleteRow(args*) {
+; 	row := list_view.GetNext()
+; 	If (row == 0) {
+; 		MsgBox("Nothing selected")
+; 		Return
+; 	}
+; 	list_view.Delete(row)
+; }
+; renameRow(list_view, row) {
+; 	name := list_view.GetText(row, 1)
+; 	; list_view.Modify(row, "Col1", ["<" name ">", "ˇnorm"])
+; 	MsgBox("renamed " row " to " name)
+; }
+; showContent(list_view, row) {
+; 	mytype := list_view.GetText(row, 2)
+; 	a := MsgBox(row ": " mytype, , 0x21)
+; 	MsgBox(a)
+; }
+
+; window := Gui()
+
+; list_view := window.AddListView("-ReadOnly Sort", ["Name", "Type"])
+; list_view.Add(, "aaa", "Normal")
+; list_view.Add(, "696", "Rotating")
+; list_view.Add(, "xyz", "Normal")
+; list_view.Add(, "štoviše", "Stack")
+; list_view.ModifyCol(1, "Auto")
+; list_view.ModifyCol(2, "Auto")
+; list_view.OnEvent("ItemEdit", renameRow)
+; list_view.OnEvent("DoubleClick", showContent)
+
+; select_button := window.AddButton(, "select")
+; select_button.OnEvent("Click", selectRow)
+; delete_button := window.AddButton("YP+0", "delete")
+; delete_button.OnEvent("Click", deleteRow)
+
+; window.Show()
+
+; Ctrl:: {
+; 	; SendEvent("{Media_Play_Pause}")
+; 	; Send("{WheelDown}")
+; 	; Sleep(10*1000)
+; 	; MouseGetPos(&x, &y, &win, &ctrl)
+; 	; MouseClick("Left", A_ScreenWidth / 2, A_ScreenHeight / 2, , 0)
+; 	; Sleep(100)
+; 	; MouseMove(x, y)
+; 	; TrayTip("hello")
+; }
+
+; Media_Play_Pause:: {
+; 	MsgBox("pp")
+; }
+
+; myabs(a, b) {
+; }
+
+; ; strCont(str) {
+; ; 	loop parse str 
+; ; }
+
+; ; MsgBox(Type(myabs(78,88)))
+
+; a := [111, 222, 333]
+
+; MsgBox(a[1])
+
+; ExitApp

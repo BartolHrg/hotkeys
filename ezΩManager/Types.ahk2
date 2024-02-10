@@ -1,5 +1,20 @@
 #Requires AutoHotkey v2.0
 
+class Component {
+	; everything needs to be static
+	; because we want to influence global state anyway (class as singleton)
+	; it can be non static, and you can use multiple objects
+	; but that seams wrong
+	; and also be careful (e.g. call This.method.Bind(This))
+	static init() {
+	}
+	static suspend() {
+	}
+	static restore() {
+	}
+}
+bindTrash(f) => f.Bind("")
+
 ; Replacer := (match_data: Any, whole_text: String) -> TODO: enum | String | Bool
 ; Matcher := (whole_text: String) -> MatchResult | Bool
 Class MatchResult {

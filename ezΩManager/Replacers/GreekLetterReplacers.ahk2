@@ -4,330 +4,349 @@
 #Include "../Types.ahk2"
 #Include "../MatchGroup.ahk2"
 
+class greek extends Component {
+	static init() {
+		input_hook := InputHook("V B")
+		input_hook.BackspaceIsUndo := False
+		input_hook.OnChar := bindTrash(greek.resetLastChar)
+		input_hook.Start()
+	
+		match_groups[firstWordTextTransform].case_insensitive_matches["greek"] := bindTrash(greek.parser)
+		For replacement In greek.replacements {
+			match := replacement[1]
+			lower := replacement[2]
+			upper := replacement[3]
+			match_groups[Trim].case_insensitive_matches[match] := greek.getReplacer(lower, upper)
+		}
+		match_groups[Trim].case_insensitive_matches["greek"] := bindTrash(greek.toggleMode)
+	}
+	static saved_mode := 0
+	static suspend() {
+		TrayTip("saving " greek.mode)
+		If (greek.mode) {
+			greek.saved_mode := greek.mode
+			greek.mode := 0
+			greek.last_char := "-"
+			greek.last_upper := False
+		}
+	}
+	static restore() {
+		TrayTip("restoring " greek.saved_mode)
+		If (greek.saved_mode) {
+			greek.mode := greek.saved_mode
+			greek.saved_mode := 0
+		}
+	}
 
-greekLetterReplacer(lower, upper) {
-	replacer(match, whole_text) {
-		trimmed := match[1]
-		If (IsLower(SubStr(trimmed, 1, 1))) {
-			Return lower
+	static getReplacer(lower, upper) {
+		replacer(match, whole_text) {
+			trimmed := match[1]
+			If (IsLower(SubStr(trimmed, 1, 1))) {
+				Return lower
+			} Else {
+				Return upper
+			}
+		}
+		Return replacer
+	}
+	
+	static parser(match, whole_text) {
+		static NO_VALUE := Object()
+		static replacements := DefaultMap(NO_VALUE,
+			"a", "α",
+			"b", "β",
+			"c", "ς",
+			"d", "δ",
+			"e", "ε",
+			"f", "ϕ",
+			"g", "γ",
+			"h", "χ",
+			"i", "η",
+			"j", "ι",
+			"k", "κ",
+			"l", "λ",
+			"m", "μ",
+			"n", "ν",
+			"o", "ο",
+			"p", "π",
+			"q", "q",
+			"r", "ρ",
+			"s", "σ",
+			"t", "τ",
+			"u", "u",
+			"v", "v",
+			"w", "ω",
+			"x", "ξ",
+			"y", "y",
+			"z", "ζ",
+			
+			"A", "Α",
+			"B", "Β",
+			"C", "Σ",
+			"D", "Δ",
+			"E", "Ε",
+			"F", "Φ",
+			"G", "Γ",
+			"H", "Χ",
+			"I", "Η",
+			"J", "Ι",
+			"K", "Κ",
+			"L", "Λ",
+			"M", "Μ",
+			"N", "Ν",
+			"O", "Ο",
+			"P", "Π",
+			"Q", "Q",
+			"R", "Ρ",
+			"S", "Σ",
+			"T", "Τ",
+			"U", "U",
+			"V", "V",
+			"W", "Ω",
+			"X", "Ξ",
+			"Y", "Y",
+			"Z", "Ζ",
+		)
+		static diϕθong_replacements := DefaultMap(NO_VALUE,
+			"th", "θ",
+			"tH", "θ",
+			"ps", "ψ",
+			"pS", "ψ",
+			
+			"Th", "Θ",
+			"TH", "Θ",
+			"Ps", "Ψ",
+			"PS", "Ψ",
+		)
+		starting_index := match[2] + 1
+		result := ""
+		last_char := "-"
+		iter := Count(starting_index, StrLen(whole_text))
+		For index In iter {
+			c := SubStr(whole_text, index    , 1)
+			d := SubStr(whole_text, index + 1, 1)
+			diϕθong := diϕθong_replacements[c . d]
+			If (diϕθong != NO_VALUE) {
+				result .= diϕθong
+				iter.moveForward()
+				Continue
+			} 
+			replacement := replacements[c]
+			If (replacement != NO_VALUE) {
+				result .= replacement
+				Continue
+			}
+			result .= c
+		}
+		Return result
+	}
+	
+	static replacements := [
+		["alpha", "α", "Α"],
+		["beta", "β", "Β"],
+		["gamma", "γ", "Γ"],
+		["delta", "δ", "Δ"],
+		["epsilon", "ε", "Ε"],
+		["epsilon1", "ε", "Ε"],
+		["epsilon2", "ϵ", "Ε"],
+		["zeta", "ζ", "Ζ"],
+		["eta", "η", "Η"],
+		["theta", "θ", "Θ"],
+		["theta1", "θ", "Θ"],
+		["theta2", "ϑ", "Θ"],
+		["iota", "ι", "Ι"],
+		["jota", "ι", "Ι"],
+		["kappa", "κ", "Κ"],
+		["lambda", "λ", "Λ"],
+		["mu", "μ", "Μ"],
+		["mi", "μ", "Μ"],
+		["nu", "ν", "Ν"],
+		["ni", "ν", "Ν"],
+		["ksi", "ξ", "Ξ"],
+		["omicron", "ο", "Ο"],
+		["pi", "π", "Π"],
+		["pi1", "π", "Π"],
+		["pi2", "ϖ", "Π"],
+		["rho", "ρ", "Ρ"],
+		["ro", "ρ", "Ρ"],
+		["rho1", "ρ", "Ρ"],
+		["ro1", "ρ", "Ρ"],
+		["rho2", "ϱ", "Ρ"],
+		["ro2", "ϱ", "Ρ"],
+		["sigma", "σ", "Σ"],
+		["sigma1", "σ", "Σ"],
+		["sigma2", "ς", "Σ"],
+		["tau", "τ", "Τ"],
+		["phi", "ϕ", "Φ"],
+		["phi1", "ϕ", "Φ"],
+		["phi2", "φ", "Φ"],
+		["fi", "ϕ", "Φ"],
+		["chi", "χ", "Χ"],
+		["hi", "χ", "Χ"],
+		["psi", "ψ", "Ψ"],
+		["omega", "ω", "Ω"],
+	]
+	
+	static mode := 0
+	static toggleMode(match, whole_text) {
+		greek.saved_mode := Not greek.saved_mode
+		Return NO_REPLACEMENT_TEXT
+	}
+	static last_char := "-"
+	static last_upper := False
+	static letterShortReplacer(lower, upper) {
+		If (GetKeyState("CapsLock", "T") ^ GetKeyState("Shift")) {
+			greek.last_char := upper
+			greek.last_upper := True
 		} Else {
-			Return upper
+			greek.last_char := lower
+			greek.last_upper := False
+		}
+		Return greek.last_char
+	}
+	static combination(lower1, upper1, lower_match, upper_match, lower_no_match, upper_no_match) {
+		If (greek.last_char == lower1 Or greek.last_char == upper1) {
+			input := "{BackSpace}"
+			If (greek.last_upper) {
+				input .= upper_match
+			} Else {
+				input .= lower_match
+			}
+			greek.last_char := "-"
+			Return input
+		}
+		Return greek.letterShortReplacer(lower_no_match, upper_no_match)
+	}
+	
+	static possible_1st_of_pair := "πΠτΤϖΠτΤ"
+	static resetLastChar(input_hook, c) {
+		If (Not InStr(greek.possible_1st_of_pair, c)) {
+			greek.last_char := "-"
 		}
 	}
-	Return replacer
 }
 
-greekParser(match, whole_text) {
-	static NO_VALUE := Object()
-	static replacements := DefaultMap(NO_VALUE,
-		"a", "α",
-		"b", "β",
-		"c", "ς",
-		"d", "δ",
-		"e", "ε",
-		"f", "ϕ",
-		"g", "γ",
-		"h", "χ",
-		"i", "η",
-		"j", "ι",
-		"k", "κ",
-		"l", "λ",
-		"m", "μ",
-		"n", "ν",
-		"o", "ο",
-		"p", "π",
-		"q", "q",
-		"r", "ρ",
-		"s", "σ",
-		"t", "τ",
-		"u", "u",
-		"v", "v",
-		"w", "ω",
-		"x", "ξ",
-		"y", "y",
-		"z", "ζ",
-		
-		"A", "Α",
-		"B", "Β",
-		"C", "Σ",
-		"D", "Δ",
-		"E", "Ε",
-		"F", "Φ",
-		"G", "Γ",
-		"H", "Χ",
-		"I", "Η",
-		"J", "Ι",
-		"K", "Κ",
-		"L", "Λ",
-		"M", "Μ",
-		"N", "Ν",
-		"O", "Ο",
-		"P", "Π",
-		"Q", "Q",
-		"R", "Ρ",
-		"S", "Σ",
-		"T", "Τ",
-		"U", "U",
-		"V", "V",
-		"W", "Ω",
-		"X", "Ξ",
-		"Y", "Y",
-		"Z", "Ζ",
-	)
-	static diϕθong_replacements := DefaultMap(NO_VALUE,
-		"th", "θ",
-		"tH", "θ",
-		"ps", "ψ",
-		"pS", "ψ",
-		
-		"Th", "Θ",
-		"TH", "Θ",
-		"Ps", "Ψ",
-		"PS", "Ψ",
-	)
-	starting_index := match[2] + 1
-	result := ""
-	last_char := "-"
-	iter := Count(starting_index, StrLen(whole_text))
-	For index In iter {
-		c := SubStr(whole_text, index    , 1)
-		d := SubStr(whole_text, index + 1, 1)
-		diϕθong := diϕθong_replacements[c . d]
-		If (diϕθong != NO_VALUE) {
-			result .= diϕθong
-			iter.moveForward()
-			Continue
-		} 
-		replacement := replacements[c]
-		If (replacement != NO_VALUE) {
-			result .= replacement
-			Continue
-		}
-		result .= c
-	}
-	Return result
-}
+components.Push(greek)
 
-greek_letters_replacements := [
-	["alpha", "α", "Α"],
-	["beta", "β", "Β"],
-	["gamma", "γ", "Γ"],
-	["delta", "δ", "Δ"],
-	["epsilon", "ε", "Ε"],
-	["epsilon1", "ε", "Ε"],
-	["epsilon2", "ϵ", "Ε"],
-	["zeta", "ζ", "Ζ"],
-	["eta", "η", "Η"],
-	["theta", "θ", "Θ"],
-	["theta1", "θ", "Θ"],
-	["theta2", "ϑ", "Θ"],
-	["iota", "ι", "Ι"],
-	["jota", "ι", "Ι"],
-	["kappa", "κ", "Κ"],
-	["lambda", "λ", "Λ"],
-	["mu", "μ", "Μ"],
-	["mi", "μ", "Μ"],
-	["nu", "ν", "Ν"],
-	["ni", "ν", "Ν"],
-	["ksi", "ξ", "Ξ"],
-	["omicron", "ο", "Ο"],
-	["pi", "π", "Π"],
-	["pi1", "π", "Π"],
-	["pi2", "ϖ", "Π"],
-	["rho", "ρ", "Ρ"],
-	["ro", "ρ", "Ρ"],
-	["rho1", "ρ", "Ρ"],
-	["ro1", "ρ", "Ρ"],
-	["rho2", "ϱ", "Ρ"],
-	["ro2", "ϱ", "Ρ"],
-	["sigma", "σ", "Σ"],
-	["sigma1", "σ", "Σ"],
-	["sigma2", "ς", "Σ"],
-	["tau", "τ", "Τ"],
-	["phi", "ϕ", "Φ"],
-	["phi1", "ϕ", "Φ"],
-	["phi2", "φ", "Φ"],
-	["fi", "ϕ", "Φ"],
-	["chi", "χ", "Χ"],
-	["hi", "χ", "Χ"],
-	["psi", "ψ", "Ψ"],
-	["omega", "ω", "Ω"],
-]
 
-greek_mode := 0
-greekModeToggle(match, whole_text) {
-	Global greek_mode
-	greek_mode := Not greek_mode
-	Return NO_REPLACEMENT_TEXT
-}
 
-greekHelper() {
-	Global greek_mode
-	Switch (greek_mode) {
-		Case 0: mode := "Off"
-		Case 1: mode := "On ⇒ 1st mode"
-		Case 2: mode := "On ⇒ 2nd mode"
-	}
-	Return ["Greek", [
-		"greek mode: " mode
-	]]
-}
 
-greekReset() {
-	Global greek_mode := 0
-	Global greek_last_char := "-"
-}
+; greekHelper() {
+; 	Global greek_mode
+; 	Switch (greek_mode) {
+; 		Case 0: mode := "Off"
+; 		Case 1: mode := "On ⇒ 1st mode"
+; 		Case 2: mode := "On ⇒ 2nd mode"
+; 	}
+; 	Return ["Greek", [
+; 		"greek mode: " mode
+; 	]]
+; }
 
-greek_last_char := "-"
-greek_last_upper := False
-greekLetterShortReplacer(lower, upper) {
-	Global greek_last_char
-	Global greek_last_upper
-	If (GetKeyState("CapsLock", "T") ^ GetKeyState("Shift")) {
-		greek_last_char := upper
-		greek_last_upper := True
-	} Else {
-		greek_last_char := lower
-		greek_last_upper := False
-	}
-	Return greek_last_char
-}
-greekCombination(lower1, upper1, lower_match, upper_match, lower_no_match, upper_no_match) {
-	Global greek_last_char
-	Global greek_last_upper
-	If (greek_last_char == lower1 Or greek_last_char == upper1) {
-		input := "{BackSpace}"
-		If (greek_last_upper) {
-			input .= upper_match
-		} Else {
-			input .= lower_match
-		}
-		greek_last_char := "-"
-		Return input
-	}
-	Return greekLetterShortReplacer(lower_no_match, upper_no_match)
-}
+; greekReset() {
+; 	Global greek_mode := 0
+; 	Global greek_last_char := "-"
+; }
 
-greek_possible_1st_of_pair := "πΠτΤϖΠτΤ"
-greek_input_hook := InputHook("V B")
-greek_input_hook.BackspaceIsUndo := False
-greekResetLastChar(greek_input_hook, c) {
-	Global greek_last_char
-	Global greek_possible_1st_of_pair
-	If (Not InStr(greek_possible_1st_of_pair, c)) {
-	greek_last_char := "-"
-	}
-}
-greek_input_hook.OnChar := greekResetLastChar
-greek_input_hook.Start()
-#HotIf greek_mode == 1
-	\:: Global greek_mode := 2
+#HotIf greek.mode == 1
+	\:: greek.mode := 2
 
 	+a::
-	 a:: SendInput(greekLetterShortReplacer("α", "Α"))
+	 a:: SendInput(greek.letterShortReplacer("α", "Α"))
 	+b::
-	 b:: SendInput(greekLetterShortReplacer("β", "Β"))
+	 b:: SendInput(greek.letterShortReplacer("β", "Β"))
 	+g::
-	 g:: SendInput(greekLetterShortReplacer("γ", "Γ"))
+	 g:: SendInput(greek.letterShortReplacer("γ", "Γ"))
 	+d::
-	 d:: SendInput(greekLetterShortReplacer("δ", "Δ"))
+	 d:: SendInput(greek.letterShortReplacer("δ", "Δ"))
 	+e::
-	 e:: SendInput(greekLetterShortReplacer("ε", "Ε"))
+	 e:: SendInput(greek.letterShortReplacer("ε", "Ε"))
 	+z::
-	 z:: SendInput(greekLetterShortReplacer("ζ", "Ζ"))
+	 z:: SendInput(greek.letterShortReplacer("ζ", "Ζ"))
 	+i::
-	 i:: SendInput(greekLetterShortReplacer("η", "Η"))
+	 i:: SendInput(greek.letterShortReplacer("η", "Η"))
 	+j::
-	 j:: SendInput(greekLetterShortReplacer("ι", "Ι"))
+	 j:: SendInput(greek.letterShortReplacer("ι", "Ι"))
 	+k::
-	 k:: SendInput(greekLetterShortReplacer("κ", "Κ"))
+	 k:: SendInput(greek.letterShortReplacer("κ", "Κ"))
 	+l::
-	 l:: SendInput(greekLetterShortReplacer("λ", "Λ"))
+	 l:: SendInput(greek.letterShortReplacer("λ", "Λ"))
 	+m::
-	 m:: SendInput(greekLetterShortReplacer("μ", "Μ"))
+	 m:: SendInput(greek.letterShortReplacer("μ", "Μ"))
 	+n::
-	 n:: SendInput(greekLetterShortReplacer("ν", "Ν"))
+	 n:: SendInput(greek.letterShortReplacer("ν", "Ν"))
 	+x::
-	 x:: SendInput(greekLetterShortReplacer("ξ", "Ξ"))
+	 x:: SendInput(greek.letterShortReplacer("ξ", "Ξ"))
 	+o::
-	 o:: SendInput(greekLetterShortReplacer("ο", "Ο"))
+	 o:: SendInput(greek.letterShortReplacer("ο", "Ο"))
 	+p::
-	 p:: SendInput(greekLetterShortReplacer("π", "Π"))
+	 p:: SendInput(greek.letterShortReplacer("π", "Π"))
 	+r::
-	 r:: SendInput(greekLetterShortReplacer("ρ", "Ρ"))
+	 r:: SendInput(greek.letterShortReplacer("ρ", "Ρ"))
 	+s::
-	 s:: SendInput(greekCombination("π", "Π", "ψ", "Ψ", "σ", "Σ"))
+	 s:: SendInput(greek.combination("π", "Π", "ψ", "Ψ", "σ", "Σ"))
 	+c::
-	 c:: SendInput(greekLetterShortReplacer("ς", "Σ"))
+	 c:: SendInput(greek.letterShortReplacer("ς", "Σ"))
 	+t::
-	 t:: SendInput(greekLetterShortReplacer("τ", "Τ"))
+	 t:: SendInput(greek.letterShortReplacer("τ", "Τ"))
 	+f::
-	 f:: SendInput(greekLetterShortReplacer("ϕ", "Φ"))
+	 f:: SendInput(greek.letterShortReplacer("ϕ", "Φ"))
 	+h::
-	 h:: SendInput(greekCombination("τ", "Τ", "θ", "Θ", "χ", "Χ"))
+	 h:: SendInput(greek.combination("τ", "Τ", "θ", "Θ", "χ", "Χ"))
 	+w::
-	 w:: SendInput(greekLetterShortReplacer("ω", "Ω"))
-#HotIf greek_mode == 2
-	Esc:: Global greek_mode := 1
+	 w:: SendInput(greek.letterShortReplacer("ω", "Ω"))
+#HotIf greek.mode == 2
+	Esc:: greek.mode := 1
 	\:: {
-		Global greek_mode
 		SendInput("\")
-		greek_mode := 1
+		greek.mode := 1
 	}
 	
 	+a::
-	 a:: SendInput(greekLetterShortReplacer("α", "Α"))
+	 a:: SendInput(greek.letterShortReplacer("α", "Α"))
 	+b::
-	 b:: SendInput(greekLetterShortReplacer("β", "Β"))
+	 b:: SendInput(greek.letterShortReplacer("β", "Β"))
 	+g::
-	 g:: SendInput(greekLetterShortReplacer("γ", "Γ"))
+	 g:: SendInput(greek.letterShortReplacer("γ", "Γ"))
 	+d::
-	 d:: SendInput(greekLetterShortReplacer("δ", "Δ"))
+	 d:: SendInput(greek.letterShortReplacer("δ", "Δ"))
 	+e::
-	 e:: SendInput(greekLetterShortReplacer("ϵ", "Ε"))
+	 e:: SendInput(greek.letterShortReplacer("ϵ", "Ε"))
 	+z::
-	 z:: SendInput(greekLetterShortReplacer("ζ", "Ζ"))
+	 z:: SendInput(greek.letterShortReplacer("ζ", "Ζ"))
 	+i::
-	 i:: SendInput(greekLetterShortReplacer("η", "Η"))
+	 i:: SendInput(greek.letterShortReplacer("η", "Η"))
 	+j::
-	 j:: SendInput(greekLetterShortReplacer("ι", "Ι"))
+	 j:: SendInput(greek.letterShortReplacer("ι", "Ι"))
 	+k::
-	 k:: SendInput(greekLetterShortReplacer("κ", "Κ"))
+	 k:: SendInput(greek.letterShortReplacer("κ", "Κ"))
 	+l::
-	 l:: SendInput(greekLetterShortReplacer("λ", "Λ"))
+	 l:: SendInput(greek.letterShortReplacer("λ", "Λ"))
 	+m::
-	 m:: SendInput(greekLetterShortReplacer("μ", "Μ"))
+	 m:: SendInput(greek.letterShortReplacer("μ", "Μ"))
 	+n::
-	 n:: SendInput(greekLetterShortReplacer("ν", "Ν"))
+	 n:: SendInput(greek.letterShortReplacer("ν", "Ν"))
 	+x::
-	 x:: SendInput(greekLetterShortReplacer("ξ", "Ξ"))
+	 x:: SendInput(greek.letterShortReplacer("ξ", "Ξ"))
 	+o::
-	 o:: SendInput(greekLetterShortReplacer("ο", "Ο"))
+	 o:: SendInput(greek.letterShortReplacer("ο", "Ο"))
 	+p::
-	 p:: SendInput(greekLetterShortReplacer("ϖ", "Π"))
+	 p:: SendInput(greek.letterShortReplacer("ϖ", "Π"))
 	+r::
-	 r:: SendInput(greekLetterShortReplacer("ϱ", "Ρ"))
+	 r:: SendInput(greek.letterShortReplacer("ϱ", "Ρ"))
 	+s::
-	 s:: SendInput(greekCombination("ϖ", "Π", "ψ", "Ψ", "σ", "Σ"))
+	 s:: SendInput(greek.combination("ϖ", "Π", "ψ", "Ψ", "σ", "Σ"))
 	+c::
-	 c:: SendInput(greekLetterShortReplacer("ς", "Σ"))
+	 c:: SendInput(greek.letterShortReplacer("ς", "Σ"))
 	+t::
-	 t:: SendInput(greekLetterShortReplacer("τ", "Τ"))
+	 t:: SendInput(greek.letterShortReplacer("τ", "Τ"))
 	+f::
-	 f:: SendInput(greekLetterShortReplacer("φ", "Φ"))
+	 f:: SendInput(greek.letterShortReplacer("φ", "Φ"))
 	+h::
-	 h:: SendInput(greekCombination("τ", "Τ", "ϑ", "Θ", "χ", "Χ"))
+	 h:: SendInput(greek.combination("τ", "Τ", "ϑ", "Θ", "χ", "Χ"))
 	+w::
-	 w:: SendInput(greekLetterShortReplacer("ω", "Ω"))
+	 w:: SendInput(greek.letterShortReplacer("ω", "Ω"))
 #HotIf
 
-match_groups[firstWordTextTransform].case_insensitive_matches["greek"] := greekParser
-For replacement In greek_letters_replacements {
-	match := replacement[1]
-	lower := replacement[2]
-	upper := replacement[3]
-	match_groups[Trim].case_insensitive_matches[match] := greekLetterReplacer(lower, upper)
-}
-match_groups[Trim].case_insensitive_matches["greek"] := greekModeToggle
-helpers.Push(greekHelper)
-reseters.Push(greekReset)
+; helpers.Push(greekHelper)
+; reseters.Push(greekReset)

@@ -64,3 +64,6 @@ match_groups[Trim].exact_matches["?"] := helperReplacer
 #Include "./Replacers/PasswordManager.ahk2"
 #Include "./Replacers/SubSuperScriptReplacers.ahk2"
 
+For comp In components {
+	comp.init()
+}

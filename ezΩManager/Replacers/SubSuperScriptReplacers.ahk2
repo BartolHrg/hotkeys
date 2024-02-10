@@ -1,418 +1,418 @@
-#Requires AutoHotkey v2.0
+; #Requires AutoHotkey v2.0
 
-#Include "../Types.ahk2"
+; #Include "../Types.ahk2"
 
-getSubscript(c) {
-	static sub_replacements := Map(
-		"0", "₀",
-		"1", "₁",
-		"2", "₂",
-		"3", "₃",
-		"4", "₄",
-		"5", "₅",
-		"6", "₆",
-		"7", "₇",
-		"8", "₈",
-		"9", "₉",
-		"+", "₊",
-		"-", "₋",
-	)
-	If (sub_replacements.Has(c)) {
-		Return sub_replacements[c]
-	}
-	Return NO_REPLACEMENT_TEXT
-}
-getSuperScript(c) {
-	static super_replacements := Map(
-		"0", "⁰",
-		"1", "¹",
-		"2", "²",
-		"3", "³",
-		"4", "⁴",
-		"5", "⁵",
-		"6", "⁶",
-		"7", "⁷",
-		"8", "⁸",
-		"9", "⁹",
-		"+", "⁺",
-		"-", "⁻",
-	)
-	If (super_replacements.Has(c)) {
-		Return super_replacements[c]
-	}
-	Return NO_REPLACEMENT_TEXT
-}
-_resultOrDefault(result, default) {
-	If (result != NO_REPLACEMENT_TEXT) {
-		Return result
-	}
-	Return default
-}
+; getSubscript(c) {
+; 	static sub_replacements := Map(
+; 		"0", "₀",
+; 		"1", "₁",
+; 		"2", "₂",
+; 		"3", "₃",
+; 		"4", "₄",
+; 		"5", "₅",
+; 		"6", "₆",
+; 		"7", "₇",
+; 		"8", "₈",
+; 		"9", "₉",
+; 		"+", "₊",
+; 		"-", "₋",
+; 	)
+; 	If (sub_replacements.Has(c)) {
+; 		Return sub_replacements[c]
+; 	}
+; 	Return NO_REPLACEMENT_TEXT
+; }
+; getSuperScript(c) {
+; 	static super_replacements := Map(
+; 		"0", "⁰",
+; 		"1", "¹",
+; 		"2", "²",
+; 		"3", "³",
+; 		"4", "⁴",
+; 		"5", "⁵",
+; 		"6", "⁶",
+; 		"7", "⁷",
+; 		"8", "⁸",
+; 		"9", "⁹",
+; 		"+", "⁺",
+; 		"-", "⁻",
+; 	)
+; 	If (super_replacements.Has(c)) {
+; 		Return super_replacements[c]
+; 	}
+; 	Return NO_REPLACEMENT_TEXT
+; }
+; _resultOrDefault(result, default) {
+; 	If (result != NO_REPLACEMENT_TEXT) {
+; 		Return result
+; 	}
+; 	Return default
+; }
 
-subSupReplacer(match, whole_text) {
-	starting_index := match[2] + 1
-	result := ""
-	NORMAL_STATE := 0
-	ESCAPE_STATE := 1
-	SUPER_STATE  := 2
-	SUB_STATE    := 3
-	state := NORMAL_STATE
-	For index In Count(starting_index, StrLen(whole_text)) {
-		c := SubStr(whole_text, index, 1)
-		Switch (state) {
-			Case NORMAL_STATE:
-				Switch (c) {
-					Case "\": state := ESCAPE_STATE
-					Case "+": state := SUPER_STATE
-					Case "-": state := SUB_STATE
-					Default: result .= c
-				}
-			Case ESCAPE_STATE:
-				result .= c
-				state := NORMAL_STATE
-			Case SUPER_STATE:
-				result .= _resultOrDefault(getSuperScript(c), c)
-				state := NORMAL_STATE
-			Case SUB_STATE:
-				result .= _resultOrDefault(getSubscript(c), c)
-				state := NORMAL_STATE
-		}
-	}
-	Return result
-}
+; subSupReplacer(match, whole_text) {
+; 	starting_index := match[2] + 1
+; 	result := ""
+; 	NORMAL_STATE := 0
+; 	ESCAPE_STATE := 1
+; 	SUPER_STATE  := 2
+; 	SUB_STATE    := 3
+; 	state := NORMAL_STATE
+; 	For index In Count(starting_index, StrLen(whole_text)) {
+; 		c := SubStr(whole_text, index, 1)
+; 		Switch (state) {
+; 			Case NORMAL_STATE:
+; 				Switch (c) {
+; 					Case "\": state := ESCAPE_STATE
+; 					Case "+": state := SUPER_STATE
+; 					Case "-": state := SUB_STATE
+; 					Default: result .= c
+; 				}
+; 			Case ESCAPE_STATE:
+; 				result .= c
+; 				state := NORMAL_STATE
+; 			Case SUPER_STATE:
+; 				result .= _resultOrDefault(getSuperScript(c), c)
+; 				state := NORMAL_STATE
+; 			Case SUB_STATE:
+; 				result .= _resultOrDefault(getSubscript(c), c)
+; 				state := NORMAL_STATE
+; 		}
+; 	}
+; 	Return result
+; }
 
-sub_sup_replacements := [
-	["sup0", "⁰"],
-	["sup1", "¹"],
-	["sup2", "²"],
-	["sup3", "³"],
-	["sup4", "⁴"],
-	["sup5", "⁵"],
-	["sup6", "⁶"],
-	["sup7", "⁷"],
-	["sup8", "⁸"],
-	["sup9", "⁹"],
-	["sup+", "⁺"],
-	["supd", "⁺"],
-	["sup-", "⁻"],
-	["supb", "⁻"],
-	["sup=", "⁼"],
-	["sup(", "⁽"],
-	["sup)", "⁾"],
-	["supa", "ᵃ"],
-	["supb", "ᵇ"],
-	["supc", "ᶜ"],
-	["supd", "ᵈ"],
-	["supe", "ᵉ"],
-	["supf", "ᶠ"],
-	["supg", "ᵍ"],
-	["suph", "ʰ"],
-	["supi", "ⁱ"],
-	["supj", "ʲ"],
-	["supk", "ᵏ"],
-	["supl", "ˡ"],
-	["supm", "ᵐ"],
-	["supn", "ⁿ"],
-	["supo", "ᵒ"],
-	["supp", "ᵖ"],
-	["supq", "𐞥"],
-	["supr", "ʳ"],
-	["sups", "ˢ"],
-	["supt", "ᵗ"],
-	["supu", "ᵘ"],
-	["supv", "ᵛ"],
-	["supw", "ʷ"],
-	["supx", "ˣ"],
-	["supy", "ʸ"],
-	["supz", "ᶻ"],
+; sub_sup_replacements := [
+; 	["sup0", "⁰"],
+; 	["sup1", "¹"],
+; 	["sup2", "²"],
+; 	["sup3", "³"],
+; 	["sup4", "⁴"],
+; 	["sup5", "⁵"],
+; 	["sup6", "⁶"],
+; 	["sup7", "⁷"],
+; 	["sup8", "⁸"],
+; 	["sup9", "⁹"],
+; 	["sup+", "⁺"],
+; 	["supd", "⁺"],
+; 	["sup-", "⁻"],
+; 	["supb", "⁻"],
+; 	["sup=", "⁼"],
+; 	["sup(", "⁽"],
+; 	["sup)", "⁾"],
+; 	["supa", "ᵃ"],
+; 	["supb", "ᵇ"],
+; 	["supc", "ᶜ"],
+; 	["supd", "ᵈ"],
+; 	["supe", "ᵉ"],
+; 	["supf", "ᶠ"],
+; 	["supg", "ᵍ"],
+; 	["suph", "ʰ"],
+; 	["supi", "ⁱ"],
+; 	["supj", "ʲ"],
+; 	["supk", "ᵏ"],
+; 	["supl", "ˡ"],
+; 	["supm", "ᵐ"],
+; 	["supn", "ⁿ"],
+; 	["supo", "ᵒ"],
+; 	["supp", "ᵖ"],
+; 	["supq", "𐞥"],
+; 	["supr", "ʳ"],
+; 	["sups", "ˢ"],
+; 	["supt", "ᵗ"],
+; 	["supu", "ᵘ"],
+; 	["supv", "ᵛ"],
+; 	["supw", "ʷ"],
+; 	["supx", "ˣ"],
+; 	["supy", "ʸ"],
+; 	["supz", "ᶻ"],
 	
-	["sub0", "₀"],
-	["sub1", "₁"],
-	["sub2", "₂"],
-	["sub3", "₃"],
-	["sub4", "₄"],
-	["sub5", "₅"],
-	["sub6", "₆"],
-	["sub7", "₇"],
-	["sub8", "₈"],
-	["sub9", "₉"],
-	["sub+", "₊"],
-	["subd", "₊"],
-	["sub-", "₋"],
-	["subb", "₋"],
-	["sub=", "₌"],
-	["sub(", "₍"],
-	["sub)", "₎"],
-	["suba", "ₐ"],
-	["sube", "ₑ"],
-	["subh", "ₕ"],
-	["subi", "ᵢ"],
-	["subj", "ⱼ"],
-	["subk", "ₖ"],
-	["subl", "ₗ"],
-	["subm", "ₘ"],
-	["subn", "ₙ"],
-	["subo", "ₒ"],
-	["subp", "ₚ"],
-	["subr", "ᵣ"],
-	["subs", "ₛ"],
-	["subt", "ₜ"],
-	["subu", "ᵤ"],
-	["subv", "ᵥ"],
-	["subx", "ₓ"],
-]
+; 	["sub0", "₀"],
+; 	["sub1", "₁"],
+; 	["sub2", "₂"],
+; 	["sub3", "₃"],
+; 	["sub4", "₄"],
+; 	["sub5", "₅"],
+; 	["sub6", "₆"],
+; 	["sub7", "₇"],
+; 	["sub8", "₈"],
+; 	["sub9", "₉"],
+; 	["sub+", "₊"],
+; 	["subd", "₊"],
+; 	["sub-", "₋"],
+; 	["subb", "₋"],
+; 	["sub=", "₌"],
+; 	["sub(", "₍"],
+; 	["sub)", "₎"],
+; 	["suba", "ₐ"],
+; 	["sube", "ₑ"],
+; 	["subh", "ₕ"],
+; 	["subi", "ᵢ"],
+; 	["subj", "ⱼ"],
+; 	["subk", "ₖ"],
+; 	["subl", "ₗ"],
+; 	["subm", "ₘ"],
+; 	["subn", "ₙ"],
+; 	["subo", "ₒ"],
+; 	["subp", "ₚ"],
+; 	["subr", "ᵣ"],
+; 	["subs", "ₛ"],
+; 	["subt", "ₜ"],
+; 	["subu", "ᵤ"],
+; 	["subv", "ᵥ"],
+; 	["subx", "ₓ"],
+; ]
 
-sub_sup_mode := 0
-subSupModeToggle(which:="both") {
-	which := StrLower(which)
-	Global sub_sup_mode
-	switch (which) {
-		Case "both": sub_sup_mode := Not sub_sup_mode
-		Case "sub": 
-		{
-			If sub_sup_mode {
-				sub_sup_mode := 0
-			} Else {
-				sub_sup_mode := 2
-			}
-		}
-		Case "sup": 
-		{
-			If sub_sup_mode {
-				sub_sup_mode := 0
-			} Else {
-				sub_sup_mode := 3
-			}
-		}
-		Default: Throw Error("invalid sub_sup option: " which ". Must be one of the following: both, sub, sup")
-	}
-	MsgBox(sub_sup_mode)
-}
-subSupReseter() {
-	Global sub_sup_mode := 0
-}
+; sub_sup_mode := 0
+; subSupModeToggle(which:="both") {
+; 	which := StrLower(which)
+; 	Global sub_sup_mode
+; 	switch (which) {
+; 		Case "both": sub_sup_mode := Not sub_sup_mode
+; 		Case "sub": 
+; 		{
+; 			If sub_sup_mode {
+; 				sub_sup_mode := 0
+; 			} Else {
+; 				sub_sup_mode := 2
+; 			}
+; 		}
+; 		Case "sup": 
+; 		{
+; 			If sub_sup_mode {
+; 				sub_sup_mode := 0
+; 			} Else {
+; 				sub_sup_mode := 3
+; 			}
+; 		}
+; 		Default: Throw Error("invalid sub_sup option: " which ". Must be one of the following: both, sub, sup")
+; 	}
+; 	MsgBox(sub_sup_mode)
+; }
+; subSupReseter() {
+; 	Global sub_sup_mode := 0
+; }
 
-;#region hotkeys
-	#HotIf sub_sup_mode == 1
-		 !0::
-		 !Numpad0:: SendInput("⁰")
-		^!0::
-		^!Numpad0:: SendInput("₀")
-		 !1::
-		 !Numpad1:: SendInput("¹")
-		^!1::
-		^!Numpad1:: SendInput("₁")
-		 !2::
-		 !Numpad2:: SendInput("²")
-		^!2::
-		^!Numpad2:: SendInput("₂")
-		 !3::
-		 !Numpad3:: SendInput("³")
-		^!3::
-		^!Numpad3:: SendInput("₃")
-		 !4::
-		 !Numpad4:: SendInput("⁴")
-		^!4::
-		^!Numpad4:: SendInput("₄")
-		 !5::
-		 !Numpad5:: SendInput("⁵")
-		^!5::
-		^!Numpad5:: SendInput("₅")
-		 !6::
-		 !Numpad6:: SendInput("⁶")
-		^!6::
-		^!Numpad6:: SendInput("₆")
-		 !7::
-		 !Numpad7:: SendInput("⁷")
-		^!7::
-		^!Numpad7:: SendInput("₇")
-		 !8::
-		 !Numpad8:: SendInput("⁸")
-		^!8::
-		^!Numpad8:: SendInput("₈")
-		 !9::
-		 !Numpad9:: SendInput("⁹")
-		^!9::
-		^!Numpad9:: SendInput("₉")
+; ;#region hotkeys
+; 	#HotIf sub_sup_mode == 1
+; 		 !0::
+; 		 !Numpad0:: SendInput("⁰")
+; 		^!0::
+; 		^!Numpad0:: SendInput("₀")
+; 		 !1::
+; 		 !Numpad1:: SendInput("¹")
+; 		^!1::
+; 		^!Numpad1:: SendInput("₁")
+; 		 !2::
+; 		 !Numpad2:: SendInput("²")
+; 		^!2::
+; 		^!Numpad2:: SendInput("₂")
+; 		 !3::
+; 		 !Numpad3:: SendInput("³")
+; 		^!3::
+; 		^!Numpad3:: SendInput("₃")
+; 		 !4::
+; 		 !Numpad4:: SendInput("⁴")
+; 		^!4::
+; 		^!Numpad4:: SendInput("₄")
+; 		 !5::
+; 		 !Numpad5:: SendInput("⁵")
+; 		^!5::
+; 		^!Numpad5:: SendInput("₅")
+; 		 !6::
+; 		 !Numpad6:: SendInput("⁶")
+; 		^!6::
+; 		^!Numpad6:: SendInput("₆")
+; 		 !7::
+; 		 !Numpad7:: SendInput("⁷")
+; 		^!7::
+; 		^!Numpad7:: SendInput("₇")
+; 		 !8::
+; 		 !Numpad8:: SendInput("⁸")
+; 		^!8::
+; 		^!Numpad8:: SendInput("₈")
+; 		 !9::
+; 		 !Numpad9:: SendInput("⁹")
+; 		^!9::
+; 		^!Numpad9:: SendInput("₉")
 		
-		 !+:: SendInput("⁺")
-		 !NumpadAdd:: SendInput("⁺")
-		^!+:: SendInput("₊")
-		^!NumpadAdd:: SendInput("₊")
-		 !-:: SendInput("⁻")
-		 !NumpadSub:: SendInput("⁻")
-		^!-:: SendInput("₋")
-		^!NumpadSub:: SendInput("₋")
+; 		 !+:: SendInput("⁺")
+; 		 !NumpadAdd:: SendInput("⁺")
+; 		^!+:: SendInput("₊")
+; 		^!NumpadAdd:: SendInput("₊")
+; 		 !-:: SendInput("⁻")
+; 		 !NumpadSub:: SendInput("⁻")
+; 		^!-:: SendInput("₋")
+; 		^!NumpadSub:: SendInput("₋")
 		
-		 !=:: SendInput("⁼")
-		^!=:: SendInput("₌")
-		 !(:: SendInput("⁽")
-		^!(:: SendInput("₍")
-		 !):: SendInput("⁾")
-		^!):: SendInput("₎")
+; 		 !=:: SendInput("⁼")
+; 		^!=:: SendInput("₌")
+; 		 !(:: SendInput("⁽")
+; 		^!(:: SendInput("₍")
+; 		 !):: SendInput("⁾")
+; 		^!):: SendInput("₎")
 		
-		^!a:: SendInput("ₐ")
-		^!e:: SendInput("ₑ")
-		^!h:: SendInput("ₕ")
-		^!i:: SendInput("ᵢ")
-		^!j:: SendInput("ⱼ")
-		^!k:: SendInput("ₖ")
-		^!l:: SendInput("ₗ")
-		^!m:: SendInput("ₘ")
-		^!n:: SendInput("ₙ")
-		^!o:: SendInput("ₒ")
-		^!p:: SendInput("ₚ")
-		^!r:: SendInput("ᵣ")
-		^!s:: SendInput("ₛ")
-		^!t:: SendInput("ₜ")
-		^!u:: SendInput("ᵤ")
-		^!v:: SendInput("ᵥ")
-		^!x:: SendInput("ₓ")
+; 		^!a:: SendInput("ₐ")
+; 		^!e:: SendInput("ₑ")
+; 		^!h:: SendInput("ₕ")
+; 		^!i:: SendInput("ᵢ")
+; 		^!j:: SendInput("ⱼ")
+; 		^!k:: SendInput("ₖ")
+; 		^!l:: SendInput("ₗ")
+; 		^!m:: SendInput("ₘ")
+; 		^!n:: SendInput("ₙ")
+; 		^!o:: SendInput("ₒ")
+; 		^!p:: SendInput("ₚ")
+; 		^!r:: SendInput("ᵣ")
+; 		^!s:: SendInput("ₛ")
+; 		^!t:: SendInput("ₜ")
+; 		^!u:: SendInput("ᵤ")
+; 		^!v:: SendInput("ᵥ")
+; 		^!x:: SendInput("ₓ")
 		
-		; there are also ᴬᴮꟲᴰᴱꟳᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾꟴᴿᵀᵁⱽᵂ, but I won't bother
-		 !a:: SendInput("ᵃ")
-		 !b:: SendInput("ᵇ")
-		 !c:: SendInput("ᶜ")
-		 !d:: SendInput("ᵈ")
-		 !e:: SendInput("ᵉ")
-		 !f:: SendInput("ᶠ")
-		 !g:: SendInput("ᵍ")
-		 !h:: SendInput("ʰ")
-		 !i:: SendInput("ⁱ")
-		 !j:: SendInput("ʲ")
-		 !k:: SendInput("ᵏ")
-		 !l:: SendInput("ˡ")
-		 !m:: SendInput("ᵐ")
-		 !n:: SendInput("ⁿ")
-		 !o:: SendInput("ᵒ")
-		 !p:: SendInput("ᵖ")
-		 !q:: SendInput("𐞥")
-		 !r:: SendInput("ʳ")
-		 !s:: SendInput("ˢ")
-		 !t:: SendInput("ᵗ")
-		 !u:: SendInput("ᵘ")
-		 !v:: SendInput("ᵛ")
-		 !w:: SendInput("ʷ")
-		 !x:: SendInput("ˣ")
-		 !y:: SendInput("ʸ")
-		 !z:: SendInput("ᶻ") 
-	#HotIf sub_sup_mode == 2 ; sub
-		0::
-		Numpad0:: SendInput("₀")
-		1::
-		Numpad1:: SendInput("₁")
-		2::
-		Numpad2:: SendInput("₂")
-		3::
-		Numpad3:: SendInput("₃")
-		4::
-		Numpad4:: SendInput("₄")
-		5::
-		Numpad5:: SendInput("₅")
-		6::
-		Numpad6:: SendInput("₆")
-		7::
-		Numpad7:: SendInput("₇")
-		8::
-		Numpad8:: SendInput("₈")
-		9::
-		Numpad9:: SendInput("₉")
+; 		; there are also ᴬᴮꟲᴰᴱꟳᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾꟴᴿᵀᵁⱽᵂ, but I won't bother
+; 		 !a:: SendInput("ᵃ")
+; 		 !b:: SendInput("ᵇ")
+; 		 !c:: SendInput("ᶜ")
+; 		 !d:: SendInput("ᵈ")
+; 		 !e:: SendInput("ᵉ")
+; 		 !f:: SendInput("ᶠ")
+; 		 !g:: SendInput("ᵍ")
+; 		 !h:: SendInput("ʰ")
+; 		 !i:: SendInput("ⁱ")
+; 		 !j:: SendInput("ʲ")
+; 		 !k:: SendInput("ᵏ")
+; 		 !l:: SendInput("ˡ")
+; 		 !m:: SendInput("ᵐ")
+; 		 !n:: SendInput("ⁿ")
+; 		 !o:: SendInput("ᵒ")
+; 		 !p:: SendInput("ᵖ")
+; 		 !q:: SendInput("𐞥")
+; 		 !r:: SendInput("ʳ")
+; 		 !s:: SendInput("ˢ")
+; 		 !t:: SendInput("ᵗ")
+; 		 !u:: SendInput("ᵘ")
+; 		 !v:: SendInput("ᵛ")
+; 		 !w:: SendInput("ʷ")
+; 		 !x:: SendInput("ˣ")
+; 		 !y:: SendInput("ʸ")
+; 		 !z:: SendInput("ᶻ") 
+; 	#HotIf sub_sup_mode == 2 ; sub
+; 		0::
+; 		Numpad0:: SendInput("₀")
+; 		1::
+; 		Numpad1:: SendInput("₁")
+; 		2::
+; 		Numpad2:: SendInput("₂")
+; 		3::
+; 		Numpad3:: SendInput("₃")
+; 		4::
+; 		Numpad4:: SendInput("₄")
+; 		5::
+; 		Numpad5:: SendInput("₅")
+; 		6::
+; 		Numpad6:: SendInput("₆")
+; 		7::
+; 		Numpad7:: SendInput("₇")
+; 		8::
+; 		Numpad8:: SendInput("₈")
+; 		9::
+; 		Numpad9:: SendInput("₉")
 		
-		+:: SendInput("₊")
-		NumpadAdd:: SendInput("₊")
-		-:: SendInput("₋")
-		NumpadSub:: SendInput("₋")
+; 		+:: SendInput("₊")
+; 		NumpadAdd:: SendInput("₊")
+; 		-:: SendInput("₋")
+; 		NumpadSub:: SendInput("₋")
 		
-		=:: SendInput("₌")
-		(:: SendInput("₍")
-		):: SendInput("₎")
+; 		=:: SendInput("₌")
+; 		(:: SendInput("₍")
+; 		):: SendInput("₎")
 		
-		a:: SendInput("ₐ")
-		e:: SendInput("ₑ")
-		h:: SendInput("ₕ")
-		i:: SendInput("ᵢ")
-		j:: SendInput("ⱼ")
-		k:: SendInput("ₖ")
-		l:: SendInput("ₗ")
-		m:: SendInput("ₘ")
-		n:: SendInput("ₙ")
-		o:: SendInput("ₒ")
-		p:: SendInput("ₚ")
-		r:: SendInput("ᵣ")
-		s:: SendInput("ₛ")
-		t:: SendInput("ₜ")
-		u:: SendInput("ᵤ")
-		v:: SendInput("ᵥ")
-		x:: SendInput("ₓ")
-	#HotIf sub_sup_mode == 3 ; sup
-		0::
-		Numpad0:: SendInput("⁰")
-		1::
-		Numpad1:: SendInput("¹")
-		2::
-		Numpad2:: SendInput("²")
-		3::
-		Numpad3:: SendInput("³")
-		4::
-		Numpad4:: SendInput("⁴")
-		5::
-		Numpad5:: SendInput("⁵")
-		6::
-		Numpad6:: SendInput("⁶")
-		7::
-		Numpad7:: SendInput("⁷")
-		8::
-		Numpad8:: SendInput("⁸")
-		9::
-		Numpad9:: SendInput("⁹")
+; 		a:: SendInput("ₐ")
+; 		e:: SendInput("ₑ")
+; 		h:: SendInput("ₕ")
+; 		i:: SendInput("ᵢ")
+; 		j:: SendInput("ⱼ")
+; 		k:: SendInput("ₖ")
+; 		l:: SendInput("ₗ")
+; 		m:: SendInput("ₘ")
+; 		n:: SendInput("ₙ")
+; 		o:: SendInput("ₒ")
+; 		p:: SendInput("ₚ")
+; 		r:: SendInput("ᵣ")
+; 		s:: SendInput("ₛ")
+; 		t:: SendInput("ₜ")
+; 		u:: SendInput("ᵤ")
+; 		v:: SendInput("ᵥ")
+; 		x:: SendInput("ₓ")
+; 	#HotIf sub_sup_mode == 3 ; sup
+; 		0::
+; 		Numpad0:: SendInput("⁰")
+; 		1::
+; 		Numpad1:: SendInput("¹")
+; 		2::
+; 		Numpad2:: SendInput("²")
+; 		3::
+; 		Numpad3:: SendInput("³")
+; 		4::
+; 		Numpad4:: SendInput("⁴")
+; 		5::
+; 		Numpad5:: SendInput("⁵")
+; 		6::
+; 		Numpad6:: SendInput("⁶")
+; 		7::
+; 		Numpad7:: SendInput("⁷")
+; 		8::
+; 		Numpad8:: SendInput("⁸")
+; 		9::
+; 		Numpad9:: SendInput("⁹")
 		
-		+:: SendInput("⁺")
-		NumpadAdd:: SendInput("⁺")
-		-:: SendInput("⁻")
-		NumpadSub:: SendInput("⁻")
+; 		+:: SendInput("⁺")
+; 		NumpadAdd:: SendInput("⁺")
+; 		-:: SendInput("⁻")
+; 		NumpadSub:: SendInput("⁻")
 		
-		=:: SendInput("⁼")
-		(:: SendInput("⁽")
-		):: SendInput("⁾")
+; 		=:: SendInput("⁼")
+; 		(:: SendInput("⁽")
+; 		):: SendInput("⁾")
 		
-		; there are also ᴬᴮꟲᴰᴱꟳᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾꟴᴿᵀᵁⱽᵂ, but I won't bother
-		a:: SendInput("ᵃ")
-		b:: SendInput("ᵇ")
-		c:: SendInput("ᶜ")
-		d:: SendInput("ᵈ")
-		e:: SendInput("ᵉ")
-		f:: SendInput("ᶠ")
-		g:: SendInput("ᵍ")
-		h:: SendInput("ʰ")
-		i:: SendInput("ⁱ")
-		j:: SendInput("ʲ")
-		k:: SendInput("ᵏ")
-		l:: SendInput("ˡ")
-		m:: SendInput("ᵐ")
-		n:: SendInput("ⁿ")
-		o:: SendInput("ᵒ")
-		p:: SendInput("ᵖ")
-		q:: SendInput("𐞥")
-		r:: SendInput("ʳ")
-		s:: SendInput("ˢ")
-		t:: SendInput("ᵗ")
-		u:: SendInput("ᵘ")
-		v:: SendInput("ᵛ")
-		w:: SendInput("ʷ")
-		x:: SendInput("ˣ")
-		y:: SendInput("ʸ")
-		z:: SendInput("ᶻ") 
-	#HotIf
-;#endregion
+; 		; there are also ᴬᴮꟲᴰᴱꟳᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾꟴᴿᵀᵁⱽᵂ, but I won't bother
+; 		a:: SendInput("ᵃ")
+; 		b:: SendInput("ᵇ")
+; 		c:: SendInput("ᶜ")
+; 		d:: SendInput("ᵈ")
+; 		e:: SendInput("ᵉ")
+; 		f:: SendInput("ᶠ")
+; 		g:: SendInput("ᵍ")
+; 		h:: SendInput("ʰ")
+; 		i:: SendInput("ⁱ")
+; 		j:: SendInput("ʲ")
+; 		k:: SendInput("ᵏ")
+; 		l:: SendInput("ˡ")
+; 		m:: SendInput("ᵐ")
+; 		n:: SendInput("ⁿ")
+; 		o:: SendInput("ᵒ")
+; 		p:: SendInput("ᵖ")
+; 		q:: SendInput("𐞥")
+; 		r:: SendInput("ʳ")
+; 		s:: SendInput("ˢ")
+; 		t:: SendInput("ᵗ")
+; 		u:: SendInput("ᵘ")
+; 		v:: SendInput("ᵛ")
+; 		w:: SendInput("ʷ")
+; 		x:: SendInput("ˣ")
+; 		y:: SendInput("ʸ")
+; 		z:: SendInput("ᶻ") 
+; 	#HotIf
+; ;#endregion
 
-For replacement_pair In sub_sup_replacements {
-	key := replacement_pair[1]
-	replacement := replacement_pair[2]
-	match_groups[Trim].case_insensitive_matches[key] := replacement
-}
-match_groups[Trim].case_insensitive_matches["subsup"] := (match, whole_text) => subSupModeToggle()
-match_groups[Trim].case_insensitive_matches["supsub"] := (match, whole_text) => subSupModeToggle()
-match_groups[Trim].case_insensitive_matches["sub"]    := (match, whole_text) => subSupModeToggle("sub")
-match_groups[Trim].case_insensitive_matches["sup"]    := (match, whole_text) => subSupModeToggle("sup")
+; For replacement_pair In sub_sup_replacements {
+; 	key := replacement_pair[1]
+; 	replacement := replacement_pair[2]
+; 	match_groups[Trim].case_insensitive_matches[key] := replacement
+; }
+; match_groups[Trim].case_insensitive_matches["subsup"] := (match, whole_text) => subSupModeToggle()
+; match_groups[Trim].case_insensitive_matches["supsub"] := (match, whole_text) => subSupModeToggle()
+; match_groups[Trim].case_insensitive_matches["sub"]    := (match, whole_text) => subSupModeToggle("sub")
+; match_groups[Trim].case_insensitive_matches["sup"]    := (match, whole_text) => subSupModeToggle("sup")
 
-reseters.Push(subSupReseter)
+; reseters.Push(subSupReseter)

@@ -8,10 +8,19 @@ class ManagerBase {
 		This.cleanup()
 	}
 	cleanup() {
+		Global manager
+		If (This.prev != ManagerBase.NO_MANAGER) {
+			This.prev.next := This.next
+		}
+		If (This.next != ManagerBase.NO_MANAGER) {
+			This.next.prev := This.prev
+		}
 	}
+	static NO_MANAGER := ManagerBase()
 }
+ManagerBase.NO_MANAGER.prev := ManagerBase.NO_MANAGER
+ManagerBase.NO_MANAGER.next := ManagerBase.NO_MANAGER
 
-NO_MANAGER := ManagerBase()
-manager := NO_MANAGER
+manager := ManagerBase.NO_MANAGER
 
 version := "1.1.0"

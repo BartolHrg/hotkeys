@@ -3,17 +3,62 @@
 #Include "../Types.ahk2"
 #Include "../MatchGroup.ahk2"
 
-clipboard_manager_mode := False
-clipboard_manager_use_ctrl_shift_c := False
-clipboard_manager_use_ctrl_shift_v := False
-clipboard_manager_title := "ezΩManager - Clipboard Manager"
-
-clipboardManagerSetClipboard(value) {
-	A_Clipboard := ""
-	Sleep(100)
-	A_Clipboard := value
-	ClipWait(1)
+class clipboard_manager extends Component {
+	static init() {
+		managers := [
+			[clipboard_manager  .normal_clipboard, "cpn"],
+			[clipboard_manager   .stack_clipboard, "cps"],
+			[clipboard_manager   .queue_clipboard, "cpq"],
+			[clipboard_manager.rotating_clipboard, "cpr"],
+			[clipboard_manager    .dual_clipboard, "cp2"],
+		]
+		For manager_data In managers {
+			manager := manager_data[1]
+			match := manager_data[2]
+			match_groups[Trim].case_insensitive_matches[match "" ] := clipboard_manager.getSetInstance(manager)
+			match_groups[Trim].case_insensitive_matches[match "+"] := clipboard_manager.getSetInstance(manager, True)
+			match_groups[Trim].case_insensitive_matches[match "-"] := clipboard_manager.getSetInstance(manager, False)
+		}
+		match_groups[firstWordTextTransform].case_insensitive_matches["cp+" ] := bindTrash(clipboard_storage  .saveClipboard)
+		match_groups[firstWordTextTransform].case_insensitive_matches["cp-" ] := bindTrash(clipboard_storage  .loadClipboard)
+		match_groups[firstWordTextTransform].case_insensitive_matches["cpx" ] := bindTrash(clipboard_storage.removeClipboard)
+		match_groups[firstWordTextTransform].case_insensitive_matches["cpl" ] := bindTrash(clipboard_storage .listClipboards)
+	}
+	
+	static setClipboard(value) {
+		A_Clipboard := ""
+		Sleep(100)
+		A_Clipboard := value
+		ClipWait(1)
+		Return True
+	}
+	static mode := False
+	static use_ctrl_shift_c := False
+	static use_ctrl_shift_v := False
+	static title := "ezΩManager - Clipboard Manager"
+	
+	static   normal_clipboard :=   NormalClipboard()
+	static    stack_clipboard :=    StackClipboard()
+	static    queue_clipboard :=    QueueClipboard()
+	static rotating_clipboard := RotatingClipboard()
+	static     dual_clipboard :=     DualClipboard()
+	static manager := clipboard_manager.normal_clipboard
+ 
+	static getSetInstance(instance, should_reset := True) {
+		setInstance(match_data, whole_text) {
+			clipboard_manager.manager.stopUsing()
+			clipboard_manager.manager := instance
+			If (should_reset) {
+				instance.reset()
+			}
+			clipboard_manager.manager.startUsing(match_data, whole_text)
+		}
+		Return setInstance
+	}
 }
+components.Push(clipboard_manager)
+
+
 
 class ClipboardManager {
 	reset() => ""
@@ -31,11 +76,11 @@ class NormalClipboard extends ClipboardManager {
 	content := ""
 	reset() => A_Clipboard := This.content := ""
 	startUsing(match_data, whole_text) {
-		Global clipboard_manager_mode := False
+		clipboard_manager.mode := False
 		A_Clipboard := This.content
 	}
 	stopUsing() {
-		Global clipboard_manager_mode := True
+		clipboard_manager.mode := True
 		This.content := ClipboardAll()
 	}
 	save() => ClipboardAll()
@@ -45,34 +90,34 @@ class _ListClipboard extends ClipboardManager {
 	list := []
 	reset() => This.list := []
 	startUsing(match_data, whole_text) {
-		Global clipboard_manager_use_ctrl_shift_v := True
-		Global clipboard_manager_use_ctrl_shift_c := True
+		clipboard_manager.use_ctrl_shift_v := True
+		clipboard_manager.use_ctrl_shift_c := True
 	}
 	stopUsing() {
-		Global clipboard_manager_use_ctrl_shift_v := False
-		Global clipboard_manager_use_ctrl_shift_c := False
+		clipboard_manager.use_ctrl_shift_v := False
+		clipboard_manager.use_ctrl_shift_c := False
 	}
 	setContent() {
 		This.addItem(ClipboardAll())
 	}
 	getContent() {
 		If (This.list.Length == 0) {
-			MsgBox("Empty clipboard", clipboard_manager_title, 0x10)
+			MsgBox("Empty clipboard", clipboard_manager.title, 0x10)
 			Return False
 		}
-		clipboardManagerSetClipboard(This.getItem())
+		clipboard_manager.setClipboard(This.getItem())
 		Return True
 	}
 	setContent2() {
 		If (This.list.Length == 0) {
-			MsgBox("Empty clipboard", clipboard_manager_title, 0x10)
+			MsgBox("Empty clipboard", clipboard_manager.title, 0x10)
 			Return False
 		}
 		This.removeItem()
 	}
 	getContent2() {
 		If (This.list.Length == 0) {
-			MsgBox("Empty clipboard", clipboard_manager_title, 0x10)
+			MsgBox("Empty clipboard", clipboard_manager.title, 0x10)
 			Return False
 		}
 		This.skipItem()
@@ -122,128 +167,249 @@ class RotatingClipboard extends _ListClipboard {
 	}
 	skipItem() => This.index += 1
 }
-
-clipboardManagerSetSetInstance(instance, should_reset := True) {
-	setInstance(match_data, whole_text) {
-		Global clipboard_manager
-		clipboard_manager.stopUsing()
-		clipboard_manager := instance
-		If (should_reset) {
-			instance.reset()
+class DualClipboard extends ClipboardManager {
+	list := ["", ""]
+	reset() => This.list[1] := This.list[2] := ""
+	startUsing(match_data, whole_text) {
+		clipboard_manager.use_ctrl_shift_v := True
+		clipboard_manager.use_ctrl_shift_c := True
+	}
+	stopUsing() {
+		clipboard_manager.use_ctrl_shift_v := False
+		clipboard_manager.use_ctrl_shift_c := False
+	}
+	setContent() => This.list[1] := ClipboardAll()
+	getContent() => clipboard_manager.setClipboard(This.list[1])
+	setContent2() {
+		If (A_ThisHotkey == "$^+c") {
+			SendInput("^c")
+		} Else {
+			SendInput("^x")
 		}
-		clipboard_manager.startUsing(match_data, whole_text)
+		Sleep(200)
+		This.list[2] := ClipboardAll()
 	}
-	Return setInstance
+	getContent2() {
+		clipboard_manager.setClipboard(This.list[2])
+		SendInput("^v")
+	}
+	save() => This.list.Clone()
+	load(content) => This.list := content.Clone()
 }
 
-clipboard_manager_saved := Map()
 
-_clipboardStorageName(match_data, whole_text, description) {
-	index_after_match := match_data[2]
-	name := Trim(SubStr(whole_text, index_after_match + 1))
-	If (Not name) {
-		MsgBox("Provide name to " . description, clipboard_manager_title, 0x10)
-		Return ""
-	}
-	Return name
-}
-saveClipboard(match_data, whole_text) {
-	name := _clipboardStorageName(match_data, whole_text, "save")
-	If (Not name) {
-		Return
-	}
-	content := clipboard_manager.save()
-	clipboard_manager_saved[name] := [clipboard_manager, content]
-}
-loadClipboard(match_data, whole_text) {
-	name := _clipboardStorageName(match_data, whole_text, "load")
-	If (Not name) {
-		Return
-	}
-	instance_content := clipboard_manager_saved[name]
-	Global clipboard_manager
-	clipboard_manager.stopUsing()
-	clipboard_manager := instance_content[1]
-	clipboard_manager.load(instance_content[2])
-}
-removeClipboard(match_data, whole_text) {
-	name := _clipboardStorageName(match_data, whole_text, "load")
-	If (Not name) {
-		Return
-	}
-	If (Not clipboard_manager_saved.Has(name)) {
-		MsgBox("Namoe not in saved names", clipboard_manager_title, 0x10)
-		Return
-	}
-	clipboard_manager_saved.Delete(name)
-}
-list_clipboard_window_title := "saved clipboards - " clipboard_manager_title
-list_clipboard_window := ""
-listClipboards(match_data, whole_text) {
-	listClipboardsWindow() {
-		Global list_clipboard_window := Gui("Resize MinSize300x30", list_clipboard_window_title)
-		text := ""
-		For name, clipboard In clipboard_manager_saved {
-			; text .= name " - " Type(clipboard[1]) ": " clipboard[2] "`n"
-			text .= name " - " Type(clipboard[1]) "`n"
+class clipboard_storage {
+	static title := "saved clipboards - " clipboard_manager.title
+	static saved := Map()
+	
+	static _getStorageName(match_data, whole_text, description) {
+		index_after_match := match_data[2]
+		name := Trim(SubStr(whole_text, index_after_match + 1))
+		If (Not name) {
+			MsgBox("Provide name to " . description, clipboard_storage.title, 0x10)
+			Return ""
 		}
-		edit_control := list_clipboard_window.AddEdit("ReadOnly", text)
-		list_clipboard_window.Show()
-		list_clipboard_window.Opt("-Resize")
-		list_clipboard_window.Show()
-		; ControlFocus(edit_control)
+		Return name
 	}
-	Return listClipboardsWindow
-}
-#HotIf WinActive(list_clipboard_window_title)
-	Esc:: {
-		If (list_clipboard_window Is Gui) {
-			list_clipboard_window.Destroy()
+	static saveClipboard(match_data, whole_text) {
+		name := clipboard_storage._getStorageName(match_data, whole_text, "save")
+		If (Not name) {
+			Return
 		}
+		content := clipboard_manager.manager.save()
+		clipboard_storage.saved[name] := [clipboard_manager.manager, content]
+	}
+	static loadClipboard(match_data, whole_text) {
+		name := clipboard_storage._getStorageName(match_data, whole_text, "load")
+		Return clipboard_storage._loadClipboard(name)
+	}
+	static _loadClipboard(name) {
+		If (Not name) {
+			Return
+		}
+		If (Not clipboard_storage.saved.Has(name)) {
+			MsgBox("Name <" name "> not in saved names", clipboard_storage.title, 0x10)
+			Return
+		}
+		instance_content := clipboard_storage.saved[name]
+		clipboard_manager.manager.stopUsing()
+		clipboard_manager.manager := instance_content[1]
+		clipboard_manager.manager.load(instance_content[2])
+	}
+	static removeClipboard(match_data, whole_text) {
+		name := clipboard_storage._getStorageName(match_data, whole_text, "load")
+		clipboard_storage._removeClipboard(name)
+	}
+	static _removeClipboard(name) {
+		If (Not name) {
+			Return
+		}
+		If (Not clipboard_storage.saved.Has(name)) {
+			MsgBox("Name <" name "> not in saved names", clipboard_storage.title, 0x10)
+			Return
+		}
+		clipboard_storage.saved.Delete(name)
+	}
+	
+	static window := ""
+	static list_view := ""
+	static row_map := []
+	static renameRow(list_view, row) {
+		new_name := list_view.GetText(row, 1)
+		old_name := clipboard_storage.row_map[row]
+		If (Not new_name) {
+			MsgBox("Name can't be empty", clipboard_storage.title, 0x10)
+			list_view.Modify(row, , old_name)
+			Return
+		}
+		clipboard_storage.saved[new_name] := clipboard_storage.saved[old_name]
+		clipboard_storage.row_map[row] := new_name
+		clipboard_storage.saved.Delete(old_name)
+		list_view.ModifyCol(1, "Auto")
+	}
+	static showContent(list_view, row) {
+		name := list_view.GetText(row, 1)
+		data := clipboard_storage.saved[name]
+		manager := data[1]
+		contents := data[2]
+		; hacky solution:
+		; write as html, pray to god Chrome can open it, hope that title is read
+		; or alternatively save without title in .clp file and open it however you can
+		path := A_ScriptDir "/clipboard-view.html" 
+		f := FileOpen(path, "w")
+		f.Write("<title>" "Contents of <" name "> - " Type(manager) "</title>")
+		f.RawWrite(contents.Ptr, contents.Size)
+		f.Close()
+		Run(path)
+	}
+	static cleanupWindow(*) {
+		TrayTip("cleanup")
+		window := clipboard_storage.window
+		clipboard_storage.window := "" ; stop recursion
+		clipboard_storage.list_view := ""
+		If (window Is Gui) {
+			window.Destroy()
+		}
+	}
+	static selectRow(*) {
+		row := clipboard_storage.list_view.GetNext()
+		If (row == 0) {
+			MsgBox("Nothing selected", clipboard_storage.title)
+			Return
+		}
+		name := clipboard_storage.list_view.GetText(row, 1)
+		If (MsgBox("Are you sure you want to select " name, clipboard_storage.title, 0x21) != "OK") {
+			Return
+		}
+		clipboard_storage.cleanupWindow()
+		clipboard_storage._loadClipboard(name)
+	}
+	static deleteRow(*) {
+		row := clipboard_storage.list_view.GetNext()
+		If (row == 0) {
+			MsgBox("Nothing selected", clipboard_storage.title)
+			Return
+		}
+		name := clipboard_storage.list_view.GetText(row, 1)
+		If (MsgBox("Are you sure you want to delete " name, clipboard_storage.title, 0x21) != "OK") {
+			Return
+		}
+		clipboard_storage._removeClipboard(name)
+		clipboard_storage.list_view.Delete(row)
+		clipboard_storage.row_map.RemoveAt(row)
+		clipboard_storage.list_view.ModifyCol(1, "Auto")
+		clipboard_storage.list_view.ModifyCol(2, "Auto")
+	}
+	static refreshListView(*) {
+		clipboard_storage.row_map := []
+		clipboard_storage.list_view.Delete()
+		For name, clipboard In clipboard_storage.saved {
+			manager := clipboard[1]
+			contents := clipboard[2]
+			; MsgBox(name " - " Type(manager))
+			clipboard_storage.list_view.Add(, name, Type(manager), "No preview atm")
+			clipboard_storage.row_map.Push(name)
+		}
+		clipboard_storage.list_view.ModifyCol(1, "Auto")
+		clipboard_storage.list_view.ModifyCol(2, "Auto")
+	}
+	static listClipboardsWindow() {
+		If (clipboard_storage.window Is Gui) {
+			clipboard_storage.refreshListView()
+			ControlFocus(clipboard_storage.window)
+			Return
+		}
+		clipboard_storage.window := Gui("Resize MinSize300x30", clipboard_storage.title " - main window")
+		clipboard_storage.window.OnEvent("Escape", bindTrash(clipboard_storage.cleanupWindow))
+		clipboard_storage.window.OnEvent("Close" , bindTrash(clipboard_storage.cleanupWindow))
+		clipboard_storage.list_view := clipboard_storage.window.AddListView(
+			"Count" clipboard_storage.saved.Count " "
+			"-Multi "
+			"-ReadOnly "
+			"WantF2 "
+		, ["Name", "Type", "Preview"])
+		clipboard_storage.list_view.OnEvent("ItemEdit",    bindTrash(clipboard_storage.renameRow))
+		clipboard_storage.list_view.OnEvent("DoubleClick", bindTrash(clipboard_storage.showContent))
+		
+		clipboard_storage.refreshListView()
+		
+		select_button := clipboard_storage.window.AddButton(, "Select")
+		select_button.OnEvent("Click", bindTrash(clipboard_storage.selectRow))
+		delete_button := clipboard_storage.window.AddButton("YP+0", "Delete")
+		delete_button.OnEvent("Click", bindTrash(clipboard_storage.deleteRow))
+		refresh_button := clipboard_storage.window.AddButton("YP+0", "Refresh")
+		refresh_button.OnEvent("Click", bindTrash(clipboard_storage.refreshListView))
+		
+		clipboard_storage.window.Show()
+		clipboard_storage.window.Opt("-Resize")
+		clipboard_storage.window.Show()
+	}
+	
+	static listClipboards(match_data, whole_text) {
+		Return bindTrash(clipboard_storage.listClipboardsWindow)
+	}
+}
+
+#HotIf WinActive(clipboard_storage.title " - main window")
+	Enter:: {
+		clipboard_storage.selectRow()
+	}
+	Delete:: {
+		clipboard_storage.deleteRow()
+	}
+	^r:: {
+		clipboard_storage.refreshListView()
 	}
 #HotIf
 
-  normal_clipboard :=   NormalClipboard()
-   stack_clipboard :=    StackClipboard()
-   queue_clipboard :=    QueueClipboard()
-rotating_clipboard := RotatingClipboard()
-clipboard_manager := normal_clipboard
 
-#HotIf clipboard_manager_mode
+#HotIf clipboard_manager.mode
 	$^c:: {
 		SendInput("^c")
 		Sleep(200)
-		clipboard_manager.setContent()
+		clipboard_manager.manager.setContent()
+	}
+	$^x:: {
+		SendInput("^x")
+		Sleep(200)
+		clipboard_manager.manager.setContent()
 	}
 	$^v:: {
-		If (Not clipboard_manager.getContent()) {
+		If (Not clipboard_manager.manager.getContent()) {
 			Return
 		}
 		SendInput("^v")
 	}
-#HotIf clipboard_manager_use_ctrl_shift_c
+#HotIf clipboard_manager.use_ctrl_shift_c
 	$^+c:: {
-		clipboard_manager.setContent2()
+		clipboard_manager.manager.setContent2()
 	}
-#HotIf clipboard_manager_use_ctrl_shift_c
+	$^+x:: {
+		clipboard_manager.manager.setContent2()
+	}
+#HotIf clipboard_manager.use_ctrl_shift_c
 	$^+v:: {
-		clipboard_manager.getContent2()
+		clipboard_manager.manager.getContent2()
 	}
 #HotIf
 
-match_groups[Trim                  ].case_insensitive_matches["cpn" ] := clipboardManagerSetSetInstance(  normal_clipboard)
-match_groups[Trim                  ].case_insensitive_matches["cpn+"] := clipboardManagerSetSetInstance(  normal_clipboard, True)
-match_groups[Trim                  ].case_insensitive_matches["cpn-"] := clipboardManagerSetSetInstance(  normal_clipboard, False)
-match_groups[Trim                  ].case_insensitive_matches["cps" ] := clipboardManagerSetSetInstance(   stack_clipboard)
-match_groups[Trim                  ].case_insensitive_matches["cps+"] := clipboardManagerSetSetInstance(   stack_clipboard, True)
-match_groups[Trim                  ].case_insensitive_matches["cps-"] := clipboardManagerSetSetInstance(   stack_clipboard, False)
-match_groups[Trim                  ].case_insensitive_matches["cpq" ] := clipboardManagerSetSetInstance(   queue_clipboard)
-match_groups[Trim                  ].case_insensitive_matches["cpq+"] := clipboardManagerSetSetInstance(   queue_clipboard, True)
-match_groups[Trim                  ].case_insensitive_matches["cpq-"] := clipboardManagerSetSetInstance(   queue_clipboard, False)
-match_groups[Trim                  ].case_insensitive_matches["cpr" ] := clipboardManagerSetSetInstance(rotating_clipboard)
-match_groups[Trim                  ].case_insensitive_matches["cpr+"] := clipboardManagerSetSetInstance(rotating_clipboard, True)
-match_groups[Trim                  ].case_insensitive_matches["cpr-"] := clipboardManagerSetSetInstance(rotating_clipboard, False)
-match_groups[firstWordTextTransform].case_insensitive_matches["cp+" ] :=   saveClipboard
-match_groups[firstWordTextTransform].case_insensitive_matches["cp-" ] :=   loadClipboard
-match_groups[firstWordTextTransform].case_insensitive_matches["cpx" ] := removeClipboard
-match_groups[firstWordTextTransform].case_insensitive_matches["cpl" ] :=   listClipboards
