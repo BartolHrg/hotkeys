@@ -11,10 +11,16 @@ try {
 	, "ezΩManager", 0x12)
 }
 
-^Esc:: {
-	MsgBox("Exiting ezΩManager")
-	ExitApp(0)
+; ^Esc:: {
+; 	MsgBox("Exiting ezΩManager")
+; 	ExitApp(0)
+; }
+
+_git_update := RunWait("git pull origin HEAD", A_ScriptDir "/UIAutomation/", "Hide")
+If (_git_update) {
+	MsgBox("Couldn't update UIAutomation. Error: " _git_update)
 }
+
 
 #Include "./Manager.ahk2"
 #Include "./Types.ahk2"

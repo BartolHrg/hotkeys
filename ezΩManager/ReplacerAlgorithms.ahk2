@@ -2,7 +2,7 @@
 
 #Include "./Types.ahk2"
 #Include "./MatchGroup.ahk2"
-#Include "./Replacers.ahk2"
+#Include "./Components.ahk2"
 
 findPotentialMatches(whole_text) { ; -> string[]
 	Return []

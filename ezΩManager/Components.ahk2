@@ -55,14 +55,14 @@ match_groups[Trim].exact_matches["?"] := helperReplacer
 ;
 
 
-#Include "./Replacers/Box.ahk2"
-#Include "./Replacers/ClipBoardManager.ahk2"
-#Include "./Replacers/CyrillicLetterReplacers.ahk2"
-#Include "./Replacers/DoubleLettersReplacers.ahk2"
-#Include "./Replacers/ezΩ.ahk2"
-#Include "./Replacers/GreekLetterReplacers.ahk2"
-#Include "./Replacers/PasswordManager.ahk2"
-#Include "./Replacers/SubSuperScriptReplacers.ahk2"
+#Include "./Components/Box.ahk2"
+#Include "./Components/ClipBoardManager.ahk2"
+#Include "./Components/CyrillicLetterReplacers.ahk2"
+#Include "./Components/DoubleLettersReplacers.ahk2"
+#Include "./Components/ezΩ.ahk2"
+#Include "./Components/Greek.ahk2"
+#Include "./Components/PasswordManager.ahk2"
+#Include "./Components/SubSuperScriptReplacers.ahk2"
 
 For comp In components {
 	comp.init()
