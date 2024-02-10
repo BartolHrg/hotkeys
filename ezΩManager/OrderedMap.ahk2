@@ -37,7 +37,7 @@ class _OrderedMapIterator2 {
 }
 
 class OrderedMap {
-	static NO_VALUE := Object()
+	Static NO_VALUE := Object()
 	__New(key_value_pairs*) {
 		This.key_value_pairs := key_value_pairs
 	}

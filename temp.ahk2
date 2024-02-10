@@ -9,25 +9,16 @@
 
 ; ExitApp
 
-f(w) {
-	MsgBox(w.mytit)
-}
-tit := "abcd"
-w1 := Gui(, tit " 1")
-w1.mytit := 1
-w1.OnEvent("Focus", f)
-w2 := Gui(, tit " 2")
-w2.mytit := 2
-w2.OnEvent("Focus", f)
 
-; class AAA {
-; 	static ap() {
-; 		MsgBox("hello")
-; 		MsgBox(This == AAA)
-; 		Return 45
-; 	}
-; 	static klmn := This.ap()
-; }
+class AAA {
+	class EEE {
+		Static XXX := 0
+		Static YYY := 1
+		Static ZZZ := 2
+	}
+}
+
+MsgBox(AAA.EEE.ZZZ)
 
 ; ; f(A) {
 ; ; 	A.ap()

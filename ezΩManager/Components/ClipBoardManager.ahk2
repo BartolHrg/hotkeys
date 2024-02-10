@@ -4,7 +4,7 @@
 #Include "../MatchGroup.ahk2"
 
 class clipboard_manager extends Component {
-	static init() {
+	Static init() {
 		managers := [
 			[clipboard_manager  .normal_clipboard, "cpn"],
 			[clipboard_manager   .stack_clipboard, "cps"],
@@ -25,26 +25,26 @@ class clipboard_manager extends Component {
 		match_groups[firstWordTextTransform].case_insensitive_matches["cpl" ] := bindTrash(clipboard_storage .listClipboards)
 	}
 	
-	static setClipboard(value) {
+	Static setClipboard(value) {
 		A_Clipboard := ""
 		Sleep(100)
 		A_Clipboard := value
 		ClipWait(1)
 		Return True
 	}
-	static mode := False
-	static use_ctrl_shift_c := False
-	static use_ctrl_shift_v := False
-	static title := "ezΩManager - Clipboard Manager"
+	Static mode := False
+	Static use_ctrl_shift_c := False
+	Static use_ctrl_shift_v := False
+	Static title := "ezΩManager - Clipboard Manager"
 	
-	static   normal_clipboard :=   NormalClipboard()
-	static    stack_clipboard :=    StackClipboard()
-	static    queue_clipboard :=    QueueClipboard()
-	static rotating_clipboard := RotatingClipboard()
-	static     dual_clipboard :=     DualClipboard()
-	static manager := clipboard_manager.normal_clipboard
+	Static   normal_clipboard :=   NormalClipboard()
+	Static    stack_clipboard :=    StackClipboard()
+	Static    queue_clipboard :=    QueueClipboard()
+	Static rotating_clipboard := RotatingClipboard()
+	Static     dual_clipboard :=     DualClipboard()
+	Static manager := clipboard_manager.normal_clipboard
  
-	static getSetInstance(instance, should_reset := True) {
+	Static getSetInstance(instance, should_reset := True) {
 		setInstance(match_data, whole_text) {
 			clipboard_manager.manager.stopUsing()
 			clipboard_manager.manager := instance
@@ -199,10 +199,10 @@ class DualClipboard extends ClipboardManager {
 
 
 class clipboard_storage {
-	static title := "saved clipboards - " clipboard_manager.title
-	static saved := Map()
+	Static title := "saved clipboards - " clipboard_manager.title
+	Static saved := Map()
 	
-	static _getStorageName(match_data, whole_text, description) {
+	Static _getStorageName(match_data, whole_text, description) {
 		index_after_match := match_data[2]
 		name := Trim(SubStr(whole_text, index_after_match + 1))
 		If (Not name) {
@@ -211,7 +211,7 @@ class clipboard_storage {
 		}
 		Return name
 	}
-	static saveClipboard(match_data, whole_text) {
+	Static saveClipboard(match_data, whole_text) {
 		name := clipboard_storage._getStorageName(match_data, whole_text, "save")
 		If (Not name) {
 			Return
@@ -219,11 +219,11 @@ class clipboard_storage {
 		content := clipboard_manager.manager.save()
 		clipboard_storage.saved[name] := [clipboard_manager.manager, content]
 	}
-	static loadClipboard(match_data, whole_text) {
+	Static loadClipboard(match_data, whole_text) {
 		name := clipboard_storage._getStorageName(match_data, whole_text, "load")
 		Return clipboard_storage._loadClipboard(name)
 	}
-	static _loadClipboard(name) {
+	Static _loadClipboard(name) {
 		If (Not name) {
 			Return
 		}
@@ -236,11 +236,11 @@ class clipboard_storage {
 		clipboard_manager.manager := instance_content[1]
 		clipboard_manager.manager.load(instance_content[2])
 	}
-	static removeClipboard(match_data, whole_text) {
+	Static removeClipboard(match_data, whole_text) {
 		name := clipboard_storage._getStorageName(match_data, whole_text, "load")
 		clipboard_storage._removeClipboard(name)
 	}
-	static _removeClipboard(name) {
+	Static _removeClipboard(name) {
 		If (Not name) {
 			Return
 		}
@@ -251,10 +251,10 @@ class clipboard_storage {
 		clipboard_storage.saved.Delete(name)
 	}
 	
-	static window := ""
-	static list_view := ""
-	static row_map := []
-	static renameRow(list_view, row) {
+	Static window := ""
+	Static list_view := ""
+	Static row_map := []
+	Static renameRow(list_view, row) {
 		new_name := list_view.GetText(row, 1)
 		old_name := clipboard_storage.row_map[row]
 		If (Not new_name) {
@@ -267,7 +267,7 @@ class clipboard_storage {
 		clipboard_storage.saved.Delete(old_name)
 		list_view.ModifyCol(1, "Auto")
 	}
-	static showContent(list_view, row) {
+	Static showContent(list_view, row) {
 		name := list_view.GetText(row, 1)
 		data := clipboard_storage.saved[name]
 		manager := data[1]
@@ -282,7 +282,7 @@ class clipboard_storage {
 		f.Close()
 		Run(path)
 	}
-	static cleanupWindow(*) {
+	Static cleanupWindow(*) {
 		TrayTip("cleanup")
 		window := clipboard_storage.window
 		clipboard_storage.window := "" ; stop recursion
@@ -291,7 +291,7 @@ class clipboard_storage {
 			window.Destroy()
 		}
 	}
-	static selectRow(*) {
+	Static selectRow(*) {
 		row := clipboard_storage.list_view.GetNext()
 		If (row == 0) {
 			MsgBox("Nothing selected", clipboard_storage.title)
@@ -304,7 +304,7 @@ class clipboard_storage {
 		clipboard_storage.cleanupWindow()
 		clipboard_storage._loadClipboard(name)
 	}
-	static deleteRow(*) {
+	Static deleteRow(*) {
 		row := clipboard_storage.list_view.GetNext()
 		If (row == 0) {
 			MsgBox("Nothing selected", clipboard_storage.title)
@@ -320,7 +320,7 @@ class clipboard_storage {
 		clipboard_storage.list_view.ModifyCol(1, "Auto")
 		clipboard_storage.list_view.ModifyCol(2, "Auto")
 	}
-	static refreshListView(*) {
+	Static refreshListView(*) {
 		clipboard_storage.row_map := []
 		clipboard_storage.list_view.Delete()
 		For name, clipboard In clipboard_storage.saved {
@@ -333,7 +333,7 @@ class clipboard_storage {
 		clipboard_storage.list_view.ModifyCol(1, "Auto")
 		clipboard_storage.list_view.ModifyCol(2, "Auto")
 	}
-	static listClipboardsWindow() {
+	Static listClipboardsWindow() {
 		If (clipboard_storage.window Is Gui) {
 			clipboard_storage.refreshListView()
 			ControlFocus(clipboard_storage.window)
@@ -365,7 +365,7 @@ class clipboard_storage {
 		clipboard_storage.window.Show()
 	}
 	
-	static listClipboards(match_data, whole_text) {
+	Static listClipboards(match_data, whole_text) {
 		Return bindTrash(clipboard_storage.listClipboardsWindow)
 	}
 }

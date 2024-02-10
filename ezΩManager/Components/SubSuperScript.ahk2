@@ -1,0 +1,404 @@
+#Requires AutoHotkey v2.0
+
+#Include "../Types.ahk2"
+#Include "../MatchGroup.ahk2"
+
+class sub_sup extends Component {
+	Static init() {
+		match_groups[Trim].case_insensitive_matches["subsup"] := sub_sup.getToggleMode(sub_sup.Modes.BOTH)
+		match_groups[Trim].case_insensitive_matches["supsub"] := sub_sup.getToggleMode(sub_sup.Modes.BOTH)
+		match_groups[Trim].case_insensitive_matches["sub"]    := sub_sup.getToggleMode(sub_sup.Modes.SUB)
+		match_groups[Trim].case_insensitive_matches["sup"]    := sub_sup.getToggleMode(sub_sup.Modes.SUP)
+		match_groups[firstWordTextTransform].case_insensitive_matches["subsup"] := bindTrash(sub_sup.parser)
+		match_groups[firstWordTextTransform].case_insensitive_matches["supsub"] := bindTrash(sub_sup.parser)
+		match_groups[firstWordTextTransform].case_insensitive_matches["sub"] := sub_sup.getParser(sub_sup.sub_replacements)
+		match_groups[firstWordTextTransform].case_insensitive_matches["sup"] := sub_sup.getParser(sub_sup.sup_replacements)
+	}
+	class Modes {
+		Static NONE := 0 ; 0b00
+		Static SUB  := 1 ; 0b01
+		Static SUP  := 2 ; 0b10
+		Static BOTH := 3 ; 0b11
+	}
+	Static mode := sub_sup.Modes.NONE
+	Static saved_mode := sub_sup.Modes.NONE
+	Static suspend() {
+		If (sub_sup.mode) {
+			sub_sup.saved_mode := sub_sup.mode
+			sub_sup.mode := 0
+		}
+	}
+	Static restore() {
+		If (sub_sup.saved_mode) {
+			sub_sup.mode := sub_sup.saved_mode
+			sub_sup.saved_mode := 0
+		}
+	}
+	Static getToggleMode(mode) {
+		toggleMode(*) {
+			If (sub_sup.saved_mode == mode) {
+				sub_sup.saved_mode := sub_sup.Modes.NONE
+			} Else {
+				sub_sup.saved_mode := mode
+			}
+			Return NO_REPLACEMENT_TEXT
+		}
+		Return toggleMode
+	}
+	Static _getMapOrDefault(replacements, key) {
+		If (replacements.Has(key)) {
+			Return replacements[key]
+		} Else {
+			Return key
+		}
+	}
+	Static parser(match, whole_text) {
+		starting_index := match[2] + 1
+		result := ""
+		NORMAL_STATE := 0
+		ESCAPE_STATE := 1
+		SUP_STATE    := 2
+		SUB_STATE    := 3
+		state := NORMAL_STATE
+		For index In Count(starting_index, StrLen(whole_text)) {
+			c := SubStr(whole_text, index, 1)
+			Switch (state) {
+			Case NORMAL_STATE:
+				Switch (c) {
+					Case "\": state := ESCAPE_STATE
+					Case "+": state := SUP_STATE
+					Case "-": state := SUB_STATE
+					Default: result .= c
+				}
+			Case ESCAPE_STATE:
+				result .= c
+				state := NORMAL_STATE
+			Case SUB_STATE:
+				result .= sub_sup._getMapOrDefault(sub_sup.sub_replacements, c)
+				state := NORMAL_STATE
+			Case SUP_STATE:
+				result .= sub_sup._getMapOrDefault(sub_sup.sup_replacements, c)
+				state := NORMAL_STATE
+			}
+		}
+		Return result
+	}
+	Static sub_replacements := Map(
+		"0", "₀",
+		"1", "₁",
+		"2", "₂",
+		"3", "₃",
+		"4", "₄",
+		"5", "₅",
+		"6", "₆",
+		"7", "₇",
+		"8", "₈",
+		"9", "₉",
+		"+", "₊",
+		"-", "₋",
+		"=", "₌",
+		"(", "₍",
+		")", "₎",
+		"a", "ₐ",
+		"e", "ₑ",
+		"h", "ₕ",
+		"i", "ᵢ",
+		"j", "ⱼ",
+		"k", "ₖ",
+		"l", "ₗ",
+		"m", "ₘ",
+		"n", "ₙ",
+		"o", "ₒ",
+		"p", "ₚ",
+		"r", "ᵣ",
+		"s", "ₛ",
+		"t", "ₜ",
+		"u", "ᵤ",
+		"v", "ᵥ",
+		"x", "ₓ",
+	)
+	Static sup_replacements := Map(
+		"0", "⁰",
+		"1", "¹",
+		"2", "²",
+		"3", "³",
+		"4", "⁴",
+		"5", "⁵",
+		"6", "⁶",
+		"7", "⁷",
+		"8", "⁸",
+		"9", "⁹",
+		"+", "⁺",
+		"-", "⁻",
+		"=", "⁼",
+		"(", "⁽",
+		")", "⁾",
+		"a", "ᵃ",
+		"b", "ᵇ",
+		"c", "ᶜ",
+		"d", "ᵈ",
+		"e", "ᵉ",
+		"f", "ᶠ",
+		"g", "ᵍ",
+		"h", "ʰ",
+		"i", "ⁱ",
+		"j", "ʲ",
+		"k", "ᵏ",
+		"l", "ˡ",
+		"m", "ᵐ",
+		"n", "ⁿ",
+		"o", "ᵒ",
+		"p", "ᵖ",
+		"q", "𐞥",
+		"r", "ʳ",
+		"s", "ˢ",
+		"t", "ᵗ",
+		"u", "ᵘ",
+		"v", "ᵛ",
+		"w", "ʷ",
+		"x", "ˣ",
+		"y", "ʸ",
+		"z", "ᶻ",
+	)
+	Static getParser(replacements) {
+		parser(match, whole_text) {
+			starting_index := match[2] + 1
+			result := ""
+			NORMAL_STATE := 0
+			ESCAPE_STATE := 1
+			state := NORMAL_STATE
+			For index In Count(starting_index, StrLen(whole_text)) {
+				c := SubStr(whole_text, index, 1)
+				If (state == ESCAPE_STATE) {
+					result .= c
+					state := NORMAL_STATE
+				} Else If (replacements.Has(c)) {
+					result .= replacements[c]
+				} Else If (c == "\") {
+					state := ESCAPE_STATE
+				} Else {
+					result .= c
+				}
+			}
+			Return result
+		}
+		Return parser
+	}
+}
+components.Push(sub_sup)
+
+
+
+;#region hotkeys
+	#HotIf sub_sup.mode == sub_sup.Modes.BOTH
+		 !0::
+		 !Numpad0:: SendInput("⁰")
+		^!0::
+		^!Numpad0:: SendInput("₀")
+		 !1::
+		 !Numpad1:: SendInput("¹")
+		^!1::
+		^!Numpad1:: SendInput("₁")
+		 !2::
+		 !Numpad2:: SendInput("²")
+		^!2::
+		^!Numpad2:: SendInput("₂")
+		 !3::
+		 !Numpad3:: SendInput("³")
+		^!3::
+		^!Numpad3:: SendInput("₃")
+		 !4::
+		 !Numpad4:: SendInput("⁴")
+		^!4::
+		^!Numpad4:: SendInput("₄")
+		 !5::
+		 !Numpad5:: SendInput("⁵")
+		^!5::
+		^!Numpad5:: SendInput("₅")
+		 !6::
+		 !Numpad6:: SendInput("⁶")
+		^!6::
+		^!Numpad6:: SendInput("₆")
+		 !7::
+		 !Numpad7:: SendInput("⁷")
+		^!7::
+		^!Numpad7:: SendInput("₇")
+		 !8::
+		 !Numpad8:: SendInput("⁸")
+		^!8::
+		^!Numpad8:: SendInput("₈")
+		 !9::
+		 !Numpad9:: SendInput("⁹")
+		^!9::
+		^!Numpad9:: SendInput("₉")
+		
+		 !+:: SendInput("⁺")
+		 !NumpadAdd:: SendInput("⁺")
+		^!+:: SendInput("₊")
+		^!NumpadAdd:: SendInput("₊")
+		 !-:: SendInput("⁻")
+		 !NumpadSub:: SendInput("⁻")
+		^!-:: SendInput("₋")
+		^!NumpadSub:: SendInput("₋")
+		
+		 !=:: SendInput("⁼")
+		^!=:: SendInput("₌")
+		 !(:: SendInput("⁽")
+		^!(:: SendInput("₍")
+		 !):: SendInput("⁾")
+		^!):: SendInput("₎")
+		
+		^!a:: SendInput("ₐ")
+		^!e:: SendInput("ₑ")
+		^!h:: SendInput("ₕ")
+		^!i:: SendInput("ᵢ")
+		^!j:: SendInput("ⱼ")
+		^!k:: SendInput("ₖ")
+		^!l:: SendInput("ₗ")
+		^!m:: SendInput("ₘ")
+		^!n:: SendInput("ₙ")
+		^!o:: SendInput("ₒ")
+		^!p:: SendInput("ₚ")
+		^!r:: SendInput("ᵣ")
+		^!s:: SendInput("ₛ")
+		^!t:: SendInput("ₜ")
+		^!u:: SendInput("ᵤ")
+		^!v:: SendInput("ᵥ")
+		^!x:: SendInput("ₓ")
+		
+		; there are also ᴬᴮꟲᴰᴱꟳᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾꟴᴿᵀᵁⱽᵂ, but I won't bother
+		 !a:: SendInput("ᵃ")
+		 !b:: SendInput("ᵇ")
+		 !c:: SendInput("ᶜ")
+		 !d:: SendInput("ᵈ")
+		 !e:: SendInput("ᵉ")
+		 !f:: SendInput("ᶠ")
+		 !g:: SendInput("ᵍ")
+		 !h:: SendInput("ʰ")
+		 !i:: SendInput("ⁱ")
+		 !j:: SendInput("ʲ")
+		 !k:: SendInput("ᵏ")
+		 !l:: SendInput("ˡ")
+		 !m:: SendInput("ᵐ")
+		 !n:: SendInput("ⁿ")
+		 !o:: SendInput("ᵒ")
+		 !p:: SendInput("ᵖ")
+		 !q:: SendInput("𐞥")
+		 !r:: SendInput("ʳ")
+		 !s:: SendInput("ˢ")
+		 !t:: SendInput("ᵗ")
+		 !u:: SendInput("ᵘ")
+		 !v:: SendInput("ᵛ")
+		 !w:: SendInput("ʷ")
+		 !x:: SendInput("ˣ")
+		 !y:: SendInput("ʸ")
+		 !z:: SendInput("ᶻ") 
+	#HotIf sub_sup.mode == sub_sup.Modes.SUB
+		0::
+		Numpad0:: SendInput("₀")
+		1::
+		Numpad1:: SendInput("₁")
+		2::
+		Numpad2:: SendInput("₂")
+		3::
+		Numpad3:: SendInput("₃")
+		4::
+		Numpad4:: SendInput("₄")
+		5::
+		Numpad5:: SendInput("₅")
+		6::
+		Numpad6:: SendInput("₆")
+		7::
+		Numpad7:: SendInput("₇")
+		8::
+		Numpad8:: SendInput("₈")
+		9::
+		Numpad9:: SendInput("₉")
+		
+		+:: SendInput("₊")
+		NumpadAdd:: SendInput("₊")
+		-:: SendInput("₋")
+		NumpadSub:: SendInput("₋")
+		
+		=:: SendInput("₌")
+		(:: SendInput("₍")
+		):: SendInput("₎")
+		
+		a:: SendInput("ₐ")
+		e:: SendInput("ₑ")
+		h:: SendInput("ₕ")
+		i:: SendInput("ᵢ")
+		j:: SendInput("ⱼ")
+		k:: SendInput("ₖ")
+		l:: SendInput("ₗ")
+		m:: SendInput("ₘ")
+		n:: SendInput("ₙ")
+		o:: SendInput("ₒ")
+		p:: SendInput("ₚ")
+		r:: SendInput("ᵣ")
+		s:: SendInput("ₛ")
+		t:: SendInput("ₜ")
+		u:: SendInput("ᵤ")
+		v:: SendInput("ᵥ")
+		x:: SendInput("ₓ")
+	#HotIf sub_sup.mode == sub_sup.Modes.SUP
+		0::
+		Numpad0:: SendInput("⁰")
+		1::
+		Numpad1:: SendInput("¹")
+		2::
+		Numpad2:: SendInput("²")
+		3::
+		Numpad3:: SendInput("³")
+		4::
+		Numpad4:: SendInput("⁴")
+		5::
+		Numpad5:: SendInput("⁵")
+		6::
+		Numpad6:: SendInput("⁶")
+		7::
+		Numpad7:: SendInput("⁷")
+		8::
+		Numpad8:: SendInput("⁸")
+		9::
+		Numpad9:: SendInput("⁹")
+		
+		+:: SendInput("⁺")
+		NumpadAdd:: SendInput("⁺")
+		-:: SendInput("⁻")
+		NumpadSub:: SendInput("⁻")
+		
+		=:: SendInput("⁼")
+		(:: SendInput("⁽")
+		):: SendInput("⁾")
+		
+		; there are also ᴬᴮꟲᴰᴱꟳᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾꟴᴿᵀᵁⱽᵂ, but I won't bother
+		a:: SendInput("ᵃ")
+		b:: SendInput("ᵇ")
+		c:: SendInput("ᶜ")
+		d:: SendInput("ᵈ")
+		e:: SendInput("ᵉ")
+		f:: SendInput("ᶠ")
+		g:: SendInput("ᵍ")
+		h:: SendInput("ʰ")
+		i:: SendInput("ⁱ")
+		j:: SendInput("ʲ")
+		k:: SendInput("ᵏ")
+		l:: SendInput("ˡ")
+		m:: SendInput("ᵐ")
+		n:: SendInput("ⁿ")
+		o:: SendInput("ᵒ")
+		p:: SendInput("ᵖ")
+		q:: SendInput("𐞥")
+		r:: SendInput("ʳ")
+		s:: SendInput("ˢ")
+		t:: SendInput("ᵗ")
+		u:: SendInput("ᵘ")
+		v:: SendInput("ᵛ")
+		w:: SendInput("ʷ")
+		x:: SendInput("ˣ")
+		y:: SendInput("ʸ")
+		z:: SendInput("ᶻ") 
+	#HotIf
+;#endregion
+

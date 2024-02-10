@@ -5,7 +5,7 @@
 #Include "../MatchGroup.ahk2"
 
 class greek extends Component {
-	static init() {
+	Static init() {
 		input_hook := InputHook("V B")
 		input_hook.BackspaceIsUndo := False
 		input_hook.OnChar := bindTrash(greek.resetLastChar)
@@ -20,9 +20,8 @@ class greek extends Component {
 		}
 		match_groups[Trim].case_insensitive_matches["greek"] := bindTrash(greek.toggleMode)
 	}
-	static saved_mode := 0
-	static suspend() {
-		TrayTip("saving " greek.mode)
+	Static saved_mode := 0
+	Static suspend() {
 		If (greek.mode) {
 			greek.saved_mode := greek.mode
 			greek.mode := 0
@@ -30,15 +29,14 @@ class greek extends Component {
 			greek.last_upper := False
 		}
 	}
-	static restore() {
-		TrayTip("restoring " greek.saved_mode)
+	Static restore() {
 		If (greek.saved_mode) {
 			greek.mode := greek.saved_mode
 			greek.saved_mode := 0
 		}
 	}
 
-	static getReplacer(lower, upper) {
+	Static getReplacer(lower, upper) {
 		replacer(match, whole_text) {
 			trimmed := match[1]
 			If (IsLower(SubStr(trimmed, 1, 1))) {
@@ -50,9 +48,9 @@ class greek extends Component {
 		Return replacer
 	}
 	
-	static parser(match, whole_text) {
-		static NO_VALUE := Object()
-		static replacements := DefaultMap(NO_VALUE,
+	Static parser(match, whole_text) {
+		Static NO_VALUE := Object()
+		Static replacements := DefaultMap(NO_VALUE,
 			"a", "α",
 			"b", "β",
 			"c", "ς",
@@ -107,7 +105,7 @@ class greek extends Component {
 			"Y", "Y",
 			"Z", "Ζ",
 		)
-		static diϕθong_replacements := DefaultMap(NO_VALUE,
+		Static diϕθong_replacements := DefaultMap(NO_VALUE,
 			"th", "θ",
 			"tH", "θ",
 			"ps", "ψ",
@@ -141,7 +139,7 @@ class greek extends Component {
 		Return result
 	}
 	
-	static replacements := [
+	Static replacements := [
 		["alpha", "α", "Α"],
 		["beta", "β", "Β"],
 		["gamma", "γ", "Γ"],
@@ -187,14 +185,14 @@ class greek extends Component {
 		["omega", "ω", "Ω"],
 	]
 	
-	static mode := 0
-	static toggleMode(match, whole_text) {
+	Static mode := 0
+	Static toggleMode(match, whole_text) {
 		greek.saved_mode := Not greek.saved_mode
 		Return NO_REPLACEMENT_TEXT
 	}
-	static last_char := "-"
-	static last_upper := False
-	static letterShortReplacer(lower, upper) {
+	Static last_char := "-"
+	Static last_upper := False
+	Static letterShortReplacer(lower, upper) {
 		If (GetKeyState("CapsLock", "T") ^ GetKeyState("Shift")) {
 			greek.last_char := upper
 			greek.last_upper := True
@@ -204,7 +202,7 @@ class greek extends Component {
 		}
 		Return greek.last_char
 	}
-	static combination(lower1, upper1, lower_match, upper_match, lower_no_match, upper_no_match) {
+	Static combination(lower1, upper1, lower_match, upper_match, lower_no_match, upper_no_match) {
 		If (greek.last_char == lower1 Or greek.last_char == upper1) {
 			input := "{BackSpace}"
 			If (greek.last_upper) {
@@ -218,8 +216,8 @@ class greek extends Component {
 		Return greek.letterShortReplacer(lower_no_match, upper_no_match)
 	}
 	
-	static possible_1st_of_pair := "πΠτΤϖΠτΤ"
-	static resetLastChar(input_hook, c) {
+	Static possible_1st_of_pair := "πΠτΤϖΠτΤ"
+	Static resetLastChar(input_hook, c) {
 		If (Not InStr(greek.possible_1st_of_pair, c)) {
 			greek.last_char := "-"
 		}

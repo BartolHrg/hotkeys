@@ -26,8 +26,8 @@
 ; }
 
 ; cyrillicParser(match, whole_text) {
-; 	static NO_VALUE := Object()
-; 	static replacements := DefaultMap(NO_VALUE,
+; 	Static NO_VALUE := Object()
+; 	Static replacements := DefaultMap(NO_VALUE,
 ; 		"a", "α",
 ; 		"b", "β",
 ; 		"c", "ς",
@@ -82,7 +82,7 @@
 ; 		"Y", "Y",
 ; 		"Z", "Ζ",
 ; 	)
-; 	static diϕθong_replacements := DefaultMap(NO_VALUE,
+; 	Static diϕθong_replacements := DefaultMap(NO_VALUE,
 ; 		"th", "θ",
 ; 		"tH", "θ",
 ; 		"ps", "ψ",

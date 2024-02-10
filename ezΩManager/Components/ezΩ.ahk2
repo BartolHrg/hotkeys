@@ -5,7 +5,7 @@
 #Include "../MatchGroup.ahk2"
 
 class ezΩ extends Component {
-	static init() {
+	Static init() {
 		For replacement In ezΩ.case_insensitive_replacements {
 			match := replacement[1]
 			replacement := replacement[2]
@@ -18,7 +18,7 @@ class ezΩ extends Component {
 		}
 	}
 	
-	static doubleReplacer(lower, upper) {
+	Static doubleReplacer(lower, upper) {
 		Static double_length_p_1 := StrLen("double") + 1
 		replacer(match, whole_text) {
 			trimmed := match[1]
@@ -31,7 +31,7 @@ class ezΩ extends Component {
 		Return replacer
 	}
 	
-	static bracketReplacer(opening, closing) {
+	Static bracketReplacer(opening, closing) {
 		back_keys := StrRepeat("{Left}", StrLen(closing))
 		bracketInserter() {
 			SendText(opening . closing)
@@ -45,7 +45,7 @@ class ezΩ extends Component {
 	}
 	
 	;#region replacements
-		static card_suites := [
+		Static card_suites := [
 			["herc"    , "♥"],
 			["karo"    , "♦"],
 			["pik"     , "♠"],
@@ -55,7 +55,7 @@ class ezΩ extends Component {
 			["spades"  , "♠"],
 			["clubs"   , "♣"],
 		]
-		static arrows := [
+		Static arrows := [
 			["<=>", "⇔"],
 			["=>", "⇒"],
 			["<=", "⇐"],
@@ -64,17 +64,17 @@ class ezΩ extends Component {
 			["->", "→"],
 			["<-", "←"],
 		]
-		static punctuation := [
+		Static punctuation := [
 			["...", "…"],
 			["dagger", "†"],
 		]
-		static O := [
+		Static O := [
 			["/o", "ø"],
 			["o/", "ø"],
 			["/O", "Ø"],
 			["O/", "Ø"],
 		]
-		static diacritics := [
+		Static diacritics := [
 			["ae", "æ"],
 			["Ae", "Æ"],
 			["AE", "Æ"],
@@ -99,7 +99,7 @@ class ezΩ extends Component {
 			["Dz", "ǲ"],
 			["DZ", "Ǳ"],
 		]
-		static double_replacements := [
+		Static double_replacements := [
 			["doublepi"   , ezΩ.doubleReplacer("ℼ", "ℿ")],
 			["doublegamma", ezΩ.doubleReplacer("ℽ", "ℾ")],
 			["doublesigma", "⅀"],
@@ -142,13 +142,13 @@ class ezΩ extends Component {
 			["double8", "𝟠"],
 			["double9", "𝟡"],
 		]
-		static hebrew := [
+		Static hebrew := [
 			["aleph", "ℵ"],
 			["bet"  , "ℶ"],
 			["gimel", "ℷ"],
 			["dalet", "ℸ"],
 		]
-		static math := [
+		Static math := [
 			;#region compare
 				["eq", "≡"],
 				["equiv", "≡"],
@@ -224,11 +224,11 @@ class ezΩ extends Component {
 		]
 	;#endregion
 	
-	static case_sensitive_replacements := joinSpread(
+	Static case_sensitive_replacements := joinSpread(
 		ezΩ.O,
 		ezΩ.diacritics,
 	)
-	static case_insensitive_replacements := joinSpread(
+	Static case_insensitive_replacements := joinSpread(
 		[
 			["ez" , "ezΩ"],
 			["ezm", "ezΩManager"],

@@ -16,7 +16,7 @@ class ManagerBase {
 			This.next.prev := This.prev
 		}
 	}
-	static NO_MANAGER := ManagerBase()
+	Static NO_MANAGER := ManagerBase()
 }
 ManagerBase.NO_MANAGER.prev := ManagerBase.NO_MANAGER
 ManagerBase.NO_MANAGER.next := ManagerBase.NO_MANAGER
