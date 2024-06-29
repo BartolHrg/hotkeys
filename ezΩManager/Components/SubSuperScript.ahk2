@@ -3,7 +3,7 @@
 #Include "../Types.ahk2"
 #Include "../MatchGroup.ahk2"
 
-class sub_sup extends Component {
+Class sub_sup Extends Component {
 	Static init() {
 		match_groups[Trim].case_insensitive_matches["subsup"] := sub_sup.getToggleMode(sub_sup.Modes.BOTH)
 		match_groups[Trim].case_insensitive_matches["supsub"] := sub_sup.getToggleMode(sub_sup.Modes.BOTH)
@@ -14,7 +14,7 @@ class sub_sup extends Component {
 		match_groups[firstWordTextTransform].case_insensitive_matches["sub"] := sub_sup.getParser(sub_sup.sub_replacements)
 		match_groups[firstWordTextTransform].case_insensitive_matches["sup"] := sub_sup.getParser(sub_sup.sup_replacements)
 	}
-	class Modes {
+	Class Modes {
 		Static NONE := 0 ; 0b00
 		Static SUB  := 1 ; 0b01
 		Static SUP  := 2 ; 0b10

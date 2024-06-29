@@ -1,8 +1,8 @@
 #Requires AutoHotkey v2.0
 
-class Component {
+Class Component {
 	; everything needs to be Static
-	; because we want to influence global state anyway (class as singleton)
+	; because we want to influence global state anyway (Class as singleton)
 	; it can be non Static, and you can use multiple objects
 	; but that seams wrong
 	; and also be careful (e.g. call This.method.Bind(This))
@@ -36,7 +36,7 @@ makeReplacer(replacer_origin) {
 }
 MATCH_NOT_FOUND := Object()
 
-class Count {
+Class Count {
 	Static MY_NULL := Object()
 	__New(start, stop := Count.MY_NULL, step := Count.MY_NULL) {
 		If (stop == Count.MY_NULL) {

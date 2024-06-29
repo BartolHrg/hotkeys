@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0
 
-class DefaultMap extends Map {
+Class DefaultMap Extends Map {
 	__New(default, values*) {
 		Super.__New(values*)
 		This.Default := default

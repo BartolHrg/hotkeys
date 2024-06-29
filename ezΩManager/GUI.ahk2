@@ -16,7 +16,7 @@ managerCleanup(*) {
 	manager.cleanup()
 }
 TITLE := "EzΩManager v" . version
-Class EzΩManagerWindow extends ManagerBase {
+Class EzΩManagerWindow Extends ManagerBase {
 	initialized := False
 	__New(manager) {
 		This.prev := ManagerBase.NO_MANAGER

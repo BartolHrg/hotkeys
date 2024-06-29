@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0
 
-class ManagerBase {
+Class ManagerBase {
 	submit() {
 		This.cleanup()
 	}

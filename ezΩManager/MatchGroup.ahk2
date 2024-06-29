@@ -3,6 +3,21 @@
 #Include "./Types.ahk2"
 #Include "./OrderedMap.ahk2"
 
+;	match_groups: list[MatchGroup]
+;	MatchGroup: {
+;		textPreprocess: (str) => TR;
+;		exact: dict[str: Repl]
+;		case_ins: dict[str: Repl]
+;		regex: ???
+;	}
+;	TR: str | (str, T)
+;	Repl: str | ReplF
+;	
+;	ReplF: (match: M, whole: str) => ReplR
+;	M: (str, T?)
+;	ReplR: str | WF | bool
+;	WF: () => void
+
 TEXT_TRANSFORM_INVALID := Object()
 TEXT_TRANSFORM_NULL := Object()
 noTransform(whole_text) => whole_text
@@ -83,7 +98,7 @@ firstWordTextTransform(whole_text) {
 firstWordTextTransformGetArgs(match_data, whole_text, max_count := -1) {
 	command    := match_data[1]
 	char_after := match_data[2]
-	Return StrSplit(Trim(SubStr(whole_text, char_after + 1)), " `t`n", , max_count)
+	Return StrSplit(Trim(SubStr(whole_text, char_after + 1)), [" ", "`t", "`n"], , max_count)
 }
 
 createMatchGroups(match_groups*) {

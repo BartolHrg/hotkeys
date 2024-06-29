@@ -4,7 +4,7 @@
 #Include "../Types.ahk2"
 #Include "../MatchGroup.ahk2"
 
-class greek extends Component {
+Class greek Extends Component {
 	Static init() {
 		input_hook := InputHook("V B")
 		input_hook.BackspaceIsUndo := False

@@ -4,7 +4,7 @@
 #Include "../Types.ahk2"
 #Include "../MatchGroup.ahk2"
 
-class ezΩ extends Component {
+Class ezΩ Extends Component {
 	Static init() {
 		For replacement In ezΩ.case_insensitive_replacements {
 			match := replacement[1]
@@ -17,7 +17,7 @@ class ezΩ extends Component {
 			match_groups[Trim].exact_matches[match] := replacement
 		}
 	}
-	
+				
 	Static doubleReplacer(lower, upper) {
 		Static double_length_p_1 := StrLen("double") + 1
 		replacer(match, whole_text) {
@@ -236,6 +236,7 @@ class ezΩ extends Component {
 			["r", "Ⓡ"],
 			["c", "©"],
 			["tm", "™"],
+			["t", "`t"],
 		],
 		ezΩ.card_suites,
 		ezΩ.arrows,

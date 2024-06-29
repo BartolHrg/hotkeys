@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0
 
-class _OrderedMapIterator1 {
+Class _OrderedMapIterator1 {
 	__New(ordered_map) {
 		This.ordered_map := ordered_map
 		This.index := 1
@@ -17,7 +17,7 @@ class _OrderedMapIterator1 {
 		Return True
 	}
 }
-class _OrderedMapIterator2 {
+Class _OrderedMapIterator2 {
 	__New(ordered_map) {
 		This.ordered_map := ordered_map
 		This.index := 1
@@ -36,7 +36,7 @@ class _OrderedMapIterator2 {
 	}
 }
 
-class OrderedMap {
+Class OrderedMap {
 	Static NO_VALUE := Object()
 	__New(key_value_pairs*) {
 		This.key_value_pairs := key_value_pairs
