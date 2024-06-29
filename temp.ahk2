@@ -1,25 +1,132 @@
 #SingleInstance Force
 
-; +Esc:: ExitApp
++Esc:: ExitApp
 
+MsgBox(A_AhkVersion)
+d := "20000229"
+; i := IsDate(d)
+; MsgBox(i)
+
+; NumpadSub:: {
+; 	SetKeyDelay(100, 100)
+; 	Send("good soil in order to grow strong. Infertile soil will not bring forth splendid fruit.")
+; }
+
+; running := False
+; d:: {
+; 	Global running := False
+; }
+; a:: {
+; 	Global running := True
+; 	While (running) {
+; 		MouseMove(288, 516)
+; 		Loop 100 {
+; 			MouseClick()
+; 			If (Not running) {
+; 				Return
+; 			}
+; 		}
+; 		MouseMove(1633, 200)
+; 		MouseClick()
+; 		MouseMove(288, 516)
+; 		Loop 50 {
+; 			MouseClick()
+; 			If (Not running) {
+; 				Return
+; 			}
+; 		}
+; 		n := 8
+; 		a := 300
+; 		; b := 500
+; 		Loop n {
+; 			; If (A_Index > 6) {
+; 			; 	Break
+; 			; }
+; 			i := n - A_Index
+; 			MouseMove(1717, a + i * 64)
+; 			; MouseMove(1717, a + i * (b - a) / (n - 1))
+; 			MouseClick()
+; 		}
+; 	}
+; }
+; ; 288, 516
+; ; 1633, 292
+; ; 1717, 955
+; ; 1717, 402
+; s:: {
+; 	MouseGetPos(&x, &y)
+; 	MsgBox(x ", " y)
+; }
+
+
+; #Include "./ezΩManager/UIAutomation/Lib/UIA.ahk"
+; #Include "./ezΩManager/UIAutomation/Lib/UIA_Browser.ahk"
+
+
+; l:: {
+; 	title := WinGetTitle("A")
+; 	MsgBox(title)
+; 	; uiab := UIA_Chrome(title)
+; 	; url := uiab.GetCurrentURL()
+; 	; MsgBox(InStr(url, "chat.openai.com"))
+; }
 
 ; a := ClipboardAll()
 
 ; FileOpen("C:/temp/a.html", "w").RawWrite(a.Ptr, a.Size)
 
-; ExitApp
+; if (buildNumber >= 22000)
+; 	hwndOSD = internalFind(bSilent, "XamlExplorerHostIslandWindow", "", "Windows.UI.Composition.DesktopWindowContentBridge", "DesktopWindowXamlSource"); 
+; } else {
+; 	hwndOSD = internalFind(bSilent, "NativeHWNDHost", "", "DirectUIHWND", "");
+; }
 
+; getRect(hwnd, *) {
+; 	RECT := Buffer(16, 0)
+; 	DllCall("user32\GetWindowRect", "uint", hwnd, "ptr", RECT)
+; 	vWinX := NumGet(RECT, 0, "Int")
+; 	vWinY := NumGet(RECT, 4, "Int")
+; 	vWinR := NumGet(RECT, 8, "Int")
+; 	vWinB := NumGet(RECT, 12, "Int")
+; 	vWinW := vWinR - vWinX
+; 	vWinH := vWinB - vWinY
+; 	Return "(" vWinX ", " vWinY ") [" vWinW "×" vWinH "]"
+; }
+; showRect(hwnd, *) {
+; 	MsgBox(getRect(hwnd))
+; }
+; ; cb := CallbackCreate(showRect)
 
-class AAA {
-	class EEE {
-		Static XXX := 0
-		Static YYY := 1
-		Static ZZZ := 2
-	}
-}
-
-MsgBox(AAA.EEE.ZZZ)
-
+; l:: {
+; 	; hw_handle := DllCall( "FindWindowEx", "uint", 0        , "uint", 0, "str", "XamlExplorerHostIslandWindow", "uint", 0 )
+; 	; MsgBox("" hw_handle)
+; 	; hw_handle := DllCall( "FindWindowEx", "uint", hw_handle, "uint", 0, "str", "Windows.UI.Composition.DesktopWindowContentBridge", "str", "DesktopWindowXamlSource" )
+; 	; MsgBox("" hw_handle)
+; 	hw_handle  := DllCall( "FindWindowEx", "uint", 0        , "uint", 0, "str", "NativeHWNDHost", "uint", 0 )
+; 	; MsgBox("" hw_handle)
+; 	hw_handle1 := DllCall( "FindWindowEx", "uint", hw_handle, "uint", 0, "str", "DirectUIHWND", "uint", 0 )
+; 	; hw_handle1 := DllCall( "FindWindowEx", "uint", hw_handle, "uint", 0, "str", "MediaTransportControls", "uint", 0 )
+; 	; MsgBox("" hw_handle1)
+	
+; 	; MsgBox(hw_handle)
+; 	;get window position
+; 	r := DllCall("SetWindowPos", "uint", hw_handle, "uint", 0, "int", 1850, "int", 60, "int", 65, "int", 140, "uint", 0, "int")
+; 	; r := DllCall( "SendMessage", "uint", hw_handle1, "int", 0x0010, "int", 0, "int", 0, "int" )
+; 	; r := DllCall( "DestroyWindow", "uint", hw_handle1, "int" )
+; 	MsgBox(hw_handle " " hw_handle1 " " r " " DllCall( "GetLastError", "int" ))
+; 	; DllCall( "ShowWindow", "uint", hw_handle1, "uint", 6 )
+; 	; w0r := getRect(hw_handle)
+; 	; w1r := getRect(hw_handle1)
+; 	; MsgBox(w0r "`n" w1r)
+; 	DllCall( "ShowWindow", "uint", hw_handle, "uint", 9 )
+; 	DllCall( "ShowWindow", "uint", hw_handle1, "uint", 9 )
+	
+	
+	
+; 	; DllCall( "EnumChildWindows", "uint", hw_handle1, "ptr", cb, "ptr", 0 )
+; 	; MsgBox("cc")
+	
+; }
 ; ; f(A) {
 ; ; 	A.ap()
 ; ; }

@@ -3,7 +3,7 @@
 #Include "../Types.ahk2"
 #Include "../MatchGroup.ahk2"
 
-class clipboard_manager extends Component {
+Class clipboard_manager Extends Component {
 	Static init() {
 		managers := [
 			[clipboard_manager  .normal_clipboard, "cpn"],
@@ -11,6 +11,7 @@ class clipboard_manager extends Component {
 			[clipboard_manager   .queue_clipboard, "cpq"],
 			[clipboard_manager.rotating_clipboard, "cpr"],
 			[clipboard_manager    .dual_clipboard, "cp2"],
+			[clipboard_manager   .write_clipboard, "cpw"],
 		]
 		For manager_data In managers {
 			manager := manager_data[1]
@@ -42,6 +43,7 @@ class clipboard_manager extends Component {
 	Static    queue_clipboard :=    QueueClipboard()
 	Static rotating_clipboard := RotatingClipboard()
 	Static     dual_clipboard :=     DualClipboard()
+	Static    write_clipboard := WriteOutClipboard()
 	Static manager := clipboard_manager.normal_clipboard
  
 	Static getSetInstance(instance, should_reset := True) {
@@ -60,7 +62,7 @@ components.Push(clipboard_manager)
 
 
 
-class ClipboardManager {
+Class ClipboardManager {
 	reset() => ""
 	startUsing(match_data, whole_text) => ""
 	setContent() => ""
@@ -72,7 +74,7 @@ class ClipboardManager {
 	load(content) => ""
 }
 
-class NormalClipboard extends ClipboardManager {
+Class NormalClipboard Extends ClipboardManager {
 	content := ""
 	reset() => A_Clipboard := This.content := ""
 	startUsing(match_data, whole_text) {
@@ -86,7 +88,7 @@ class NormalClipboard extends ClipboardManager {
 	save() => ClipboardAll()
 	load(content) => A_Clipboard := This.content := content
 }
-class _ListClipboard extends ClipboardManager {
+Class _ListClipboard Extends ClipboardManager {
 	list := []
 	reset() => This.list := []
 	startUsing(match_data, whole_text) {
@@ -125,19 +127,19 @@ class _ListClipboard extends ClipboardManager {
 	save() => This.list.Clone()
 	load(content) => This.list := content.Clone()
 }
-class StackClipboard extends _ListClipboard {
+Class StackClipboard Extends _ListClipboard {
 	addItem(item) => This.list.Push(item)
 	getItem()     => This.list.Pop()
 	removeItem()  => This.list.Pop()
 	skipItem()    => This.list.Pop()
 }
-class QueueClipboard extends _ListClipboard {
+Class QueueClipboard Extends _ListClipboard {
 	addItem(item) => This.list.InsertAt(1, item)
 	getItem()     => This.list.Pop()
 	removeItem()  => This.list.RemoveAt(1)
 	skipItem()    => This.list.Pop()
 }
-class RotatingClipboard extends _ListClipboard {
+Class RotatingClipboard Extends _ListClipboard {
 	_index := 1
 	index {
 		set {
@@ -167,7 +169,7 @@ class RotatingClipboard extends _ListClipboard {
 	}
 	skipItem() => This.index += 1
 }
-class DualClipboard extends ClipboardManager {
+Class DualClipboard Extends ClipboardManager {
 	list := ["", ""]
 	reset() => This.list[1] := This.list[2] := ""
 	startUsing(match_data, whole_text) {
@@ -196,9 +198,15 @@ class DualClipboard extends ClipboardManager {
 	save() => This.list.Clone()
 	load(content) => This.list := content.Clone()
 }
+Class WriteOutClipboard Extends NormalClipboard {
+	getContent() {
+		x := A_Clipboard
+		Send(x)
+	}
+}
 
 
-class clipboard_storage {
+Class clipboard_storage {
 	Static title := "saved clipboards - " clipboard_manager.title
 	Static saved := Map()
 	

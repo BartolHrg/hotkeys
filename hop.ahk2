@@ -1,0 +1,17 @@
+#SingleInstance Force
+
+^Esc::ExitApp
+
+running := False
+Esc::Global running := False
+
+g::{
+	MouseMove(0, +15, , "R")
+	Global running := True
+	While (running) {
+		Sleep(1000)
+		MouseMove(0, +1, , "R")
+		Sleep(1500)
+		MouseMove(0, -1, , "R")
+	}
+}
