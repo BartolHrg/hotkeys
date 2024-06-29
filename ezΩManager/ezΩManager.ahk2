@@ -16,9 +16,13 @@ try {
 ; 	ExitApp(0)
 ; }
 
-_git_update := RunWait("git pull origin HEAD", A_ScriptDir "/UIAutomation/", "Hide")
-If (_git_update) {
-	MsgBox("Couldn't update UIAutomation. Error: " _git_update)
+try {
+	_git_update := RunWait("git pull origin HEAD", A_ScriptDir "/UIAutomation/", "Hide")
+	If (_git_update) {
+		MsgBox("Couldn't update UIAutomation (you can ignore this). Error: " _git_update)
+	}
+} catch Error as e {
+	MsgBox("Error updating UIAutomation (you can ignore this): " e.Message "`nSpecifically: " e.Extra)
 }
 
 
@@ -28,7 +32,7 @@ If (_git_update) {
 
 ; MsgBox("ezΩManager v" . version)
 
-class EzΩManager extends ManagerBase {
+Class EzΩManager Extends ManagerBase {
 	__New() {
 		Global manager
 		manager.next := This

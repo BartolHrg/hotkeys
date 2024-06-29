@@ -1,0 +1,111 @@
+#Requires AutoHotkey v2.0
+
+#Include "../DefaultMap.ahk2"
+#Include "../Types.ahk2"
+#Include "../MatchGroup.ahk2"
+
+Class hžpp Extends Component {
+	Static matches := ["hž", "hžpp", "hzpp", ]
+	Static init() {
+		For match In hžpp.matches {
+			match_groups[Trim                  ].case_insensitive_matches[match] := (args*) => hžpp.hzppReplacerToday(args*)
+			match_groups[firstWordTextTransform].case_insensitive_matches[match] := (args*) => hžpp.hzppReplacerCustomDay(args*)
+		}
+		match_groups[Trim                  ].case_insensitive_matches["hž+"] := (args*) => hžpp.hzppReplacerTomorrow(args*)
+	}
+				
+	Static openHžpp(date) {
+		Run "`"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe`" `"https://prodaja.hzpp.hr/hr/Ticket/Journey?StartId=74201&DestId=72480&ReturnFromId=72480&DepartureDate=" date "&ReturnDepartureDate=" date "&DirectTrains=True&Class=2&ReturnTrip=True&Passenger1Count=1&Passenger2Count=0&Benefit1Id=12&Bicycle=False&Reservation=False&ReturnBicycle=False&ReturnReservation=False`""
+	}
+	Static hzppReplacerToday(match, whole_text) {
+		today := A_YYYY "-" A_MM "-" A_DD
+		Return () => hžpp.openHžpp(today)
+	}
+	Static hzppReplacerTomorrow(match, whole_text) {
+		date := FormatTime(DateAdd(A_Now, 1, "Days"), "yyyy-MM-dd") ; tomorrow
+		Return () => hžpp.openHžpp(date)
+	}
+	Static hzppReplacerCustomDay(match, whole_text) {
+		args := firstWordTextTransformGetArgs(match, whole_text)
+		If (args.Length > 1) {
+			MsgBox("Too many arguments for hžpp")
+			Return False
+		}
+		arg := args[1]
+		If (arg == "+") {
+			date := FormatTime(DateAdd(A_Now, 1, "Days"), "yyyy-MM-dd") ; tomorrow
+		} Else {
+			date := hžpp.parseDate(arg)
+			If (Not date) {
+				Return False
+			}
+		}
+		If (MsgBox(date, , 0x1) != "OK") {
+			Return False
+		}
+		Return () => hžpp.openHžpp(date)
+	}
+	Static parseDate(arg) {
+		; yyyy-mm-dd
+		; dd.mm.yyyy.
+		; dd/mm/yyyy
+		; dd.mm.
+		; dd/mm
+		; mm-dd
+		If (InStr(arg, "-")) {
+			Return hžpp.parseIso(arg)
+		} Else {
+			Return hžpp.parseNormal(arg)
+		}
+	}
+	Static parseIso(arg) {
+		date_parts := StrSplit(arg, "-", " ")
+		hžpp.filterDateParts(date_parts)
+		Switch (date_parts.Length) {
+		Case 2:
+			Return hžpp.formatDate(A_Year, date_parts[1], date_parts[2])
+		Case 3:
+			Return hžpp.formatDate(date_parts[1], date_parts[2], date_parts[3])
+		Default:
+			MsgBox("Invalid date format: you should have 2 or 3 components. Valid formats: `n`tYYYY-MM-DD`n`tMM-DD`n`tDD.MM.YY[.]`n`tDD.MM[.]`n`tDD/MM/YYYY`n`tDD/MM")
+			Return ""
+		}
+	}
+	Static parseNormal(arg) {
+		date_parts := StrSplit(arg, [".", "/"], " ")
+		hžpp.filterDateParts(date_parts)
+		Switch (date_parts.Length) {
+		Case 2:
+			Return hžpp.formatDate(A_Year, date_parts[2], date_parts[1])
+		Case 3:
+			Return hžpp.formatDate(date_parts[3], date_parts[2], date_parts[1])
+		Default:
+			MsgBox("Invalid date format: you should have 2 or 3 components. Valid formats: `n`tYYYY-MM-DD`n`tMM-DD`n`tDD.MM.YY[.]`n`tDD.MM[.]`n`tDD/MM/YYYY`n`tDD/MM")
+			Return ""
+		}
+	}
+	Static filterDateParts(date_parts) {
+		index := 1
+		For i, x In date_parts {
+			y := Trim(x)
+			If (y) {
+				date_parts[index] = y
+				index += 1
+			}
+		}
+		If (index <= date_parts.Length) {
+			date_parts.RemoveAt(index, date_parts.Length - index + 1)
+		}
+	}
+	Static formatDate(year, month, day) {
+		While (StrLen(month) != 2) {
+			month := "0" . month
+		}
+		While (StrLen(day) != 2) {
+			day := "0" . day
+		}
+		Return year "-" month "-" day
+	}
+}
+components.Push(hžpp)
+
