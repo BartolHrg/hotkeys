@@ -1,0 +1,24 @@
+#Requires AutoHotkey v2.0
+#SingleInstance Force
+
+; https://github.dev/UnlimitedStack/HideVolumeOSD
+; String build = RuntimeInformation.OSDescription.Substring(RuntimeInformation.OSDescription.LastIndexOf('.') + 1);
+; int buildNumber = int.Parse(build);
+; if (buildNumber >= 22000)
+	; hw_handle := DllCall( "FindWindowEx", "uint", 0        , "uint", 0, "str", "XamlExplorerHostIslandWindow", "uint", 0 )
+	; hw_handle := DllCall( "FindWindowEx", "uint", hw_handle, "uint", 0, "str", "Windows.UI.Composition.DesktopWindowContentBridge", "str", "DesktopWindowXamlSource" )
+; else 
+	hw_handle  := DllCall( "FindWindowEx", "uint", 0        , "uint", 0, "str", "NativeHWNDHost", "uint", 0 )
+	hw_handle1 := DllCall( "FindWindowEx", "uint", hw_handle, "uint", 0, "str", "DirectUIHWND", "uint", 0 )
+;
+doTheThing() {
+	DllCall("SetWindowPos", "uint", hw_handle, "uint", 0, "int", 1850, "int", 60, "int", 65, "int", 140, "uint", 0x0001, "int")
+	; DllCall( "ShowWindow", "uint", hw_handle , "uint", 11 )
+	; DllCall( "ShowWindow", "uint", hw_handle1, "uint", 11 )
+}
+Loop {
+	doTheThing()
+
+	; Sleep(100)
+}
+
