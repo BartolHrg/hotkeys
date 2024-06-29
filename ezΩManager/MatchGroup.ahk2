@@ -47,6 +47,9 @@ Class MatchGroup {
 		; String => [replacer, match_data]
 		textTransform := This.textTransform
 		text_and_optional_data := textTransform(text)
+		If (text_and_optional_data == TEXT_TRANSFORM_INVALID) {
+			Return MATCH_NOT_FOUND
+		}
 		If (text_and_optional_data Is String) {
 			text := text_and_optional_data
 			text_transform_data := TEXT_TRANSFORM_NULL
