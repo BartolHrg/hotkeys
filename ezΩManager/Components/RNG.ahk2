@@ -1,0 +1,42 @@
+#Requires AutoHotkey v2.0
+
+#Include "../DefaultMap.ahk2"
+#Include "../Types.ahk2"
+#Include "../MatchGroup.ahk2"
+
+Class rng Extends Component {
+	Static init() {
+		match_groups[Trim                      ].case_insensitive_matches["rng"] := (args*) => rng.randomNumber(args*)
+		match_groups[Trim                      ].case_insensitive_matches["rnd"] := (args*) => rng.randomNumber(args*)
+		match_groups[first3LettersTextTransform].case_insensitive_matches["rng"] := (args*) => rng.randomNumber(args*)
+		match_groups[first3LettersTextTransform].case_insensitive_matches["rnd"] := (args*) => rng.randomNumber(args*)
+	}
+	Static randomNumber(match, whole_text) {
+		text := Trim(SubStr(Trim(whole_text), 4))
+		ab := StrSplit(text, [" ", "-"])
+		Switch (ab.Length) {
+			Case 0:
+				a := 1
+				b := 6
+			Case 1:
+				a := 1
+				Try {
+					b := ab[1] * 1
+				} Catch {
+					Return False
+				}
+			Case 2:
+				Try {
+					a := ab[1] * 1
+					b := ab[2] * 1
+				} Catch {
+					Return False
+				}
+			Default:
+				Return False
+		}
+		return "" . Random(a, b)
+	}
+}
+components.Push(rng)
+

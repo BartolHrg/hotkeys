@@ -103,6 +103,13 @@ firstWordTextTransformGetArgs(match_data, whole_text, max_count := -1) {
 	char_after := match_data[2]
 	Return StrSplit(Trim(SubStr(whole_text, char_after + 1)), [" ", "`t", "`n"], , max_count)
 }
+first3LettersTextTransform(whole_text) {
+	trimmed := Trim(whole_text)
+	If (StrLen(trimmed) <= 3) {
+		Return TEXT_TRANSFORM_INVALID
+	}
+	Return SubStr(trimmed, 1, 3)
+}
 
 createMatchGroups(match_groups*) {
 	result := OrderedMap()
@@ -136,6 +143,16 @@ match_groups := createMatchGroups(
 		),
 	),
 	MatchGroup(firstWordTextTransform, 
+		Map( ; exact
+		),
+		Map( ; case_insensitive
+			; "subsup", subSupReplacer,
+			; "supsub", subSupReplacer,
+		),
+		Map( ; regex
+		),
+	),
+	MatchGroup(first3LettersTextTransform, 
 		Map( ; exact
 		),
 		Map( ; case_insensitive

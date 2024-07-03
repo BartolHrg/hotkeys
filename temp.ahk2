@@ -2,8 +2,34 @@
 
 +Esc:: ExitApp
 
-MsgBox(A_AhkVersion)
-d := "20000229"
+try {
+	s := "rabctk"
+	MsgBox(s * 1 + 3)
+} catch {
+	MsgBox("nan")
+}
+
+str := "12"
+ab := StrSplit(str, [" ", "-"])
+MsgBox(ab.Length)
+Switch (ab.Length) {
+	Case 0:
+		a := 0
+		b := 6
+	Case 1:
+		a := 0
+		b := ab[1] * 1
+	Case 2:
+		a := ab[1] * 1
+		b := ab[2] * 1
+	Default:
+		a := -1
+		b := -1
+}
+MsgBox(a . "-" . b)
+
+; MsgBox(A_AhkVersion)
+; d := "20000229"
 ; i := IsDate(d)
 ; MsgBox(i)
 
