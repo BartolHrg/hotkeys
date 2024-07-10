@@ -4,7 +4,7 @@
 
 try {
 	s := "rabctk"
-	MsgBox(s * 1 + 3) 
+	MsgBox(s * 1 + 3)
 } catch {
 	MsgBox("nan")
 }
