@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Get the name of the branch being pushed
+while read local_ref local_sha remote_ref remote_sha
+do
+  branch_name=$(git rev-parse --symbolic --abbrev-ref $local_ref)
+  
+  if [ "$branch_name" = "personal" ]; then
+    echo "Pushing branch '$branch_name' is forbidden."
+    exit 1
+  fi
+done
