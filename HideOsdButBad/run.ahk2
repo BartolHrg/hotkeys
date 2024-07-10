@@ -1,6 +1,12 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 
+Send("{Volume_Mute}")
+Sleep(300)
+Send("{Volume_Mute}")
+Sleep(300)
+
+; maybe run multiple instances???
 Run(A_ScriptDir "/" "./HideOsdButBad.exe", , "Hide")
 
 ExitApp

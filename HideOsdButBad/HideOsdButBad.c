@@ -86,3 +86,14 @@ void debugHwnd(HWND hwnd) {
 
 	// ; hw_handle := DllCall( "FindWindowEx", "uint", 0        , "uint", 0, "str", "XamlExplorerHostIslandWindow", "uint", 0 )
 	// ; hw_handle := DllCall( "FindWindowEx", "uint", hw_handle, "uint", 0, "str", "Windows.UI.Composition.DesktopWindowContentBridge", "str", "DesktopWindowXamlSource" )
+
+//	;	https://github.dev/UnlimitedStack/HideVolumeOSD
+//	;	String build = RuntimeInformation.OSDescription.Substring(RuntimeInformation.OSDescription.LastIndexOf('.') + 1);
+//	;	int buildNumber = int.Parse(build);
+//	;	if (buildNumber >= 22000)
+//		;	hw_handle := DllCall( "FindWindowEx", "uint", 0        , "uint", 0, "str", "XamlExplorerHostIslandWindow", "uint", 0 )
+//		;	hw_handle := DllCall( "FindWindowEx", "uint", hw_handle, "uint", 0, "str", "Windows.UI.Composition.DesktopWindowContentBridge", "str", "DesktopWindowXamlSource" )
+//	;	else 
+//			hw_handle  := DllCall( "FindWindowEx", "uint", 0        , "uint", 0, "str", "NativeHWNDHost", "uint", 0 )
+//			hw_handle1 := DllCall( "FindWindowEx", "uint", hw_handle, "uint", 0, "str", "DirectUIHWND", "uint", 0 )
+//	;
