@@ -15,7 +15,7 @@ Class hžpp Extends Component {
 	}
 				
 	Static openHžpp(date) {
-		Run "`"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe`" `"https://prodaja.hzpp.hr/hr/Ticket/Journey?StartId=74201&DestId=72480&ReturnFromId=72480&DepartureDate=" date "&ReturnDepartureDate=" date "&DirectTrains=True&Class=2&ReturnTrip=True&Passenger1Count=1&Passenger2Count=0&Benefit1Id=12&Bicycle=False&Reservation=False&ReturnBicycle=False&ReturnReservation=False`""
+		Run "`"C:\Programs\Browser.lnk`" `"https://prodaja.hzpp.hr/hr/Ticket/Journey?StartId=74201&DestId=72480&ReturnFromId=72480&DepartureDate=" date "&ReturnDepartureDate=" date "&DirectTrains=True&Class=2&ReturnTrip=True&Passenger1Count=1&Passenger2Count=0&Benefit1Id=12&Bicycle=False&Reservation=False&ReturnBicycle=False&ReturnReservation=False`""
 	}
 	Static hzppReplacerToday(match, whole_text) {
 		today := A_YYYY "-" A_MM "-" A_DD

@@ -1,0 +1,23 @@
+#Requires AutoHotkey v2.0
+
+#Include "../DefaultMap.ahk2"
+#Include "../Types.ahk2"
+#Include "../MatchGroup.ahk2"
+
+Class sticky_through Extends Component {
+	Static matches := ["sty", "sticky", ]
+	Static init() {
+		For match In sticky_through.matches {
+			match_groups[Trim                  ].case_insensitive_matches[match] := (args*) => sticky_through.replacer(args*)
+		}
+	}
+				
+	Static opensticky_through() {
+		Run "`"pythonw`" `"" PROJECTS_DIR "/StickyThrough/StickyThrough.pyw`""
+	}
+	Static replacer(match, whole_text) {
+		Return () => sticky_through.opensticky_through()
+	}
+}
+components.Push(sticky_through)
+
