@@ -13,7 +13,7 @@ try {
 SetTitleMatchMode(2)
 
 
-#HotIf WinActive("Discord") Or WinActive("WhatsApp")
+#HotIf WinActive("Discord") Or WinActive("WhatsApp") Or WinActive("Claude")
 
 ;#region Enter
 	$Enter:: Send("{ShiftDown}{Enter}{ShiftUp}")
