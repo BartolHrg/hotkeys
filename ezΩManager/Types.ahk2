@@ -103,7 +103,7 @@ StrRepeat(str, count) {
 	Loop count {
 		output .= str
 	}
-	return output
+	Return output
 }
 
 PROJECTS_DIR := A_ScriptDir "/../.."
