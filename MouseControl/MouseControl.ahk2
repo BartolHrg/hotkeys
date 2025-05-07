@@ -3,9 +3,9 @@
 #SingleInstance Force
 
 icon_path := "./cursors_big.ico"
-try {
+Try {
 	TraySetIcon(icon_path)
-} catch Error as e {
+} Catch Error As e {
 	TrayTip(
 		"Couldn't set icon for MouseControl`n"
 		"if you want, you can create file <" A_ScriptDir "/" icon_path ">"

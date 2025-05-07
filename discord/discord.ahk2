@@ -3,9 +3,9 @@
 
 #Requires AutoHotkey v2.0
 
-try {
+Try {
 	TraySetIcon("./Letter_D_blue_35033.ico")
-} catch Error as e {
+} Catch Error As e {
 	; meh, icon doesn't exist
 	; you can download some icon from the internet
 }

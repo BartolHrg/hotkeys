@@ -1,0 +1,19 @@
+#Requires AutoHotkey v2.0
+
+#SingleInstance Force
+
+icon_path := "./rotate.png"
+Try {
+	TraySetIcon(icon_path)
+} Catch Error As e {
+	TrayTip(
+		"Couldn't set icon for MouseControl`n"
+		"if you want, you can create file <" A_ScriptDir "/" icon_path ">"
+	, "MouseControl", 0x12)
+}
+
+
+$!#Down::  Run(A_ScriptDir "/Orient.exe 0")
+$!#Right:: Run(A_ScriptDir "/Orient.exe 1")
+$!#Up::    Run(A_ScriptDir "/Orient.exe 2")
+$!#Left::  Run(A_ScriptDir "/Orient.exe 3")
