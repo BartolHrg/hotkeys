@@ -2,25 +2,35 @@
 
 Class ManagerBase {
 	submit() {
-		This.cleanup()
 	}
 	destroy() {
-		This.cleanup()
 	}
 	cleanup() {
-		Global manager
-		If (This.prev != ManagerBase.NO_MANAGER) {
-			This.prev.next := This.next
-		}
-		If (This.next != ManagerBase.NO_MANAGER) {
-			This.next.prev := This.prev
-		}
+	}
+	isActive(hwnd) {
+		Return False
 	}
 	Static NO_MANAGER := ManagerBase()
 }
-ManagerBase.NO_MANAGER.prev := ManagerBase.NO_MANAGER
-ManagerBase.NO_MANAGER.next := ManagerBase.NO_MANAGER
 
-manager := ManagerBase.NO_MANAGER
+getActiveManager() {
+	active_hwnd := WinGetID("A")
+	For manager In managers {
+		If (manager.isActive(active_hwnd)) {
+			Return manager
+		}
+	}
+	Return ManagerBase.NO_MANAGER
+}
+removeManager(manager) {
+	For index, mng In managers {
+		If (mng == manager) {
+			managers.RemoveAt(index)
+			Break
+		}
+	}
+}
+
+managers := []
 
 version := "1.3.0"

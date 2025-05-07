@@ -9,30 +9,32 @@
 #Include "./ReplacerAlgorithms.ahk2"
 #Include "./Manager.ahk2"
 
-#Include "./UIAutomation/Lib/UIA.ahk"
-
-managerCleanup(*) {
-	Global manager
-	manager.cleanup()
-}
 TITLE := "EzΩManager v" . version
-Class EzΩManagerWindow Extends ManagerBase {
+Class EzΩManager Extends ManagerBase {
 	initialized := False
-	__New(manager) {
-		This.prev := ManagerBase.NO_MANAGER
-		This.next := ManagerBase.NO_MANAGER
-		This.manager := manager
+	__New() {
+		managers.Push(This)
 		This.replacement := NO_REPLACEMENT_TEXT
-		This.focused_element := UIA.GetFocusedElement()
 		This.gui_object := gui_object := Gui(, TITLE,)
-		gui_object.OnEvent("Escape", (*) => This.manager.Destroy())
-		gui_object.OnEvent("Close", (*) => This.manager.cleanup())
+		gui_object.OnEvent("Escape", (*) => This.destroy())
+		gui_object.OnEvent("Close", (*) => This.cleanup())
 		This.edit_object := gui_object.AddEdit("r1 w400")
-		This.edit_object.OnEvent("Focus", (*) => This.manager.focus())
-		This.edit_object.OnEvent("LoseFocus", (*) => This.manager.loseFocus())
-		This.manager.focus()
+		This.edit_object.OnEvent("Focus", (*) => This.onGetFocus())
+		This.edit_object.OnEvent("LoseFocus", (*) => This.onLoseFocus())
+		This.onGetFocus()
 		This.initialized := True
 		gui_object.Show()
+	}
+	
+	onGetFocus() {
+		For component In components {
+			component.suspend()
+		}
+	}
+	onLoseFocus() {
+		For component In components {
+			component.restore()
+		}
 	}
 	
 	submit() {
@@ -60,16 +62,17 @@ Class EzΩManagerWindow Extends ManagerBase {
 	}
 	destroy() {
 		Super.destroy()
+		This.gui_object.Destroy()
 		Return True
 	}
 	cleanup() {
-		This.gui_object.Destroy()
-		This.returnFocus()
+		This.gui_object.Destroy() ; even if it's redundant
+		removeManager(This)
+		This.makeReplacement()
 		Super.cleanup()
 	}
-	
-	returnFocus() {
-		This.focused_element.SetFocus()
+
+	makeReplacement() {
 		replacement := This.replacement
 		is_string := replacement Is String
 		is_func := replacement Is Func
@@ -87,19 +90,19 @@ Class EzΩManagerWindow Extends ManagerBase {
 			replacement()
 		}
 	}
+	
+	isActive(hwnd) {
+		return This.gui_object.Hwnd == hwnd
+	}
 }
 
 ; Sleep(5000)
-; manager := EzΩManagerWindow()
+; manager := EzΩManager()
 
 
 #HotIf WinActive(TITLE)
 	Tab:: {
-		Global manager
+		manager := getActiveManager()
 		manager.submit()
 	}
-	; Esc:: {
-	; 	Global manager
-	; 	manager.destroy()
-	; }
 #HotIf

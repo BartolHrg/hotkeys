@@ -16,60 +16,13 @@ Try {
 ; 	ExitApp(0)
 ; }
 
-Try {
-	_git_update := RunWait("git pull origin HEAD", A_ScriptDir "/UIAutomation/", "Hide")
-	If (_git_update) {
-		MsgBox("Couldn't update UIAutomation (you can ignore this). Error: " _git_update)
-	}
-} Catch Error As e {
-	MsgBox("Error updating UIAutomation (you can ignore this): " e.Message "`nSpecifically: " e.Extra)
-}
-
-
 #Include "./Manager.ahk2"
 #Include "./Types.ahk2"
 #Include "./GUI.ahk2"
 
 ; MsgBox("ezΩManager v" . version)
 
-Class EzΩManager Extends ManagerBase {
-	__New() {
-		Global manager
-		manager.next := This
-		This.prev := manager
-		This.next := ManagerBase.NO_MANAGER
-		manager := This
-		This.window := EzΩManagerWindow(This)
-	}
-	submit() {
-		If (Not This.window.submit()) {
-			Return
-		}
-		This.cleanup()
-	}
-	destroy() {
-		If (Not This.window.destroy()) {
-			Return
-		}
-		This.cleanup()
-	}
-	cleanup() {
-		This.loseFocus()
-		Super.cleanup()
-	}
-	focus() {
-		Global manager := This
-		For component In components {
-			component.suspend()
-		}
-	}
-	loseFocus() {
-		Global manager := ManagerBase.NO_MANAGER
-		For component In components {
-			component.restore()
-		}
-	}
-}
+
 
 #HotIf Not WinActive("Call of Duty")
 SC029:: EzΩManager()
