@@ -6,10 +6,22 @@
 
 Class rng Extends Component {
 	Static init() {
+		match_groups[Trim                      ].case_insensitive_matches["uuid"] := (args*) => rng.uuid()
 		match_groups[Trim                      ].case_insensitive_matches["rng"] := (args*) => rng.randomNumber(args*)
 		match_groups[Trim                      ].case_insensitive_matches["rnd"] := (args*) => rng.randomNumber(args*)
 		match_groups[first3LettersTextTransform].case_insensitive_matches["rng"] := (args*) => rng.randomNumber(args*)
 		match_groups[first3LettersTextTransform].case_insensitive_matches["rnd"] := (args*) => rng.randomNumber(args*)
+	}
+	Static uuid() {
+		If (RunWait("python ./Components/Uuid.py", A_ScriptDir, "Hide") != 0) {
+		; If (RunWait("C:\Programs\Python\Python_3.12\python.exe ./uuid.py", A_ScriptDir, "Hide") != 0) {
+			Return 0
+		}
+		uuid_file := FileOpen(A_ScriptDir "/temp.txt", 0x0, "UTF-8")
+		uuid := Trim(uuid_file.Read())
+		uuid_file.Close()
+		Return uuid
+		
 	}
 	Static randomNumber(match, whole_text) {
 		text := Trim(SubStr(Trim(whole_text), 4))

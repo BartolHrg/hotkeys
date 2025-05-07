@@ -237,6 +237,7 @@ Class ezΩ Extends Component {
 			["c", "©"],
 			["tm", "™"],
 			["t", "`t"],
+			["num", (match, whole_text) => (SendInput("{NumLock}") Or True)],
 		],
 		ezΩ.card_suites,
 		ezΩ.arrows,

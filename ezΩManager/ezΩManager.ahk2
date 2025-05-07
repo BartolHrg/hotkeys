@@ -2,9 +2,9 @@
 #SingleInstance Force
 
 icon_path := "./omega_bold_x.png"
-try {
+Try {
 	TraySetIcon(icon_path)
-} catch Error as e {
+} Catch Error As e {
 	TrayTip(
 		"Couldn't set icon for ezΩManager`n"
 		"if you want, you can create file <" A_ScriptDir "/" icon_path ">"
@@ -16,12 +16,12 @@ try {
 ; 	ExitApp(0)
 ; }
 
-try {
+Try {
 	_git_update := RunWait("git pull origin HEAD", A_ScriptDir "/UIAutomation/", "Hide")
 	If (_git_update) {
 		MsgBox("Couldn't update UIAutomation (you can ignore this). Error: " _git_update)
 	}
-} catch Error as e {
+} Catch Error As e {
 	MsgBox("Error updating UIAutomation (you can ignore this): " e.Message "`nSpecifically: " e.Extra)
 }
 
@@ -71,4 +71,6 @@ Class EzΩManager Extends ManagerBase {
 	}
 }
 
+#HotIf Not WinActive("Call of Duty")
 SC029:: EzΩManager()
+#HotIf
