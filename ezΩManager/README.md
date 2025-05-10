@@ -9,7 +9,7 @@ It can:
 * run anything (any command: run AHK functions, DLLs, terminal commndas)  
 
 
-Before running, run `init.cmd/.sh` to install [UIAutomation dependency](#disclaimer-for-uiautomation-dependency)  
+~~Before running, run `init.cmd/.sh`~~ (currently it does nothing)  
 Instructions for running AutoHotKey are in root [../README.md](../README.md).  
 Run file `ezΩManager.ahk2`.  
 
@@ -27,12 +27,4 @@ To reset everything, simply press `SC029` again.
 Example: type in the `greek` command.  
 Now, when you type on your keyboard, greek letters show up.  
 (Typing `abc` produces `αβς`)  
-
-# Disclaimer for UIAutomation dependency  
-
-I don't wanna bother with copyright and licenses  
-So if you use ezΩManager, either  
-* download [UIAutomation v2 github](https://github.com/Descolada/UIA-v2)  
-  So that `UIA.ahk` is in location `ezΩManager/UIAutomation/Lib/UIA.ahk`  
-* run `init.cmd/.sh`  
 
